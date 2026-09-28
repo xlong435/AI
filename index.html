@@ -125,9 +125,31 @@ body{
 }
 .icon-btn:hover{background:rgba(255,90,20,.3);color:#fff;transform:rotate(35deg);}
 
+/* ===== 实时状态条 ===== */
+.live-bar{
+  flex:0 0 auto;display:flex;align-items:center;gap:10px;
+  padding:7px 12px;margin-top:8px;
+  border-radius:10px;
+  background:linear-gradient(90deg,rgba(30,6,0,.65),rgba(30,6,0,.4));
+  border:1px solid rgba(255,120,40,.18);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  font-size:12.5px;color:#ffb88e;overflow-x:auto;
+  scrollbar-width:none;white-space:nowrap;
+}
+.live-bar::-webkit-scrollbar{display:none;}
+.live-item{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+.live-item .lv-dot{
+  width:7px;height:7px;border-radius:50%;background:#9ca3af;flex:0 0 auto;
+}
+.live-item.online .lv-dot{background:#4ade80;box-shadow:0 0 8px #4ade80;}
+.live-item.offline .lv-dot{background:#ef4444;box-shadow:0 0 8px #ef4444;}
+.live-item.loading .lv-dot{background:#facc15;animation:blink 1s ease-in-out infinite;}
+.live-item b{color:#ffd0a8;font-weight:700;}
+.live-sep{color:rgba(255,120,40,.35);flex:0 0 auto;}
+
 /* ===== 滚动公告 ===== */
 .ticker{
-  overflow:hidden;white-space:nowrap;flex:0 0 auto;
+  overflow:hidden;white-space:nowrap;flex:0 0 auto;margin-top:8px;
   border-bottom:1px solid rgba(255,120,40,.12);
   background:linear-gradient(90deg,rgba(30,6,0,.65),rgba(30,6,0,.35),rgba(30,6,0,.65));
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
@@ -321,7 +343,10 @@ body{
   .status{font-size:11px;}
   .icon-btn{width:38px;height:38px;font-size:16px;border-radius:11px;}
 
+  .live-bar{font-size:11.5px;padding:6px 10px;gap:8px;margin-top:6px;}
+
   .ticker-track span{font-size:11.5px;padding:6px 0;}
+  .ticker{margin-top:6px;}
 
   .chat-scroll{padding:14px 2px 6px;}
   .msg{gap:8px;margin-bottom:13px;}
@@ -359,6 +384,7 @@ body{
   .brand-text h1{font-size:14px;}
   .status{display:none;}
   .ticker{display:none;}
+  .live-bar{display:none;}
   .chat-scroll{padding-top:10px;}
   .quick{padding-bottom:6px;}
   .input-bar{padding-bottom:10px;}
@@ -397,6 +423,21 @@ body{
     <button class="icon-btn" id="settingsBtn" title="API 设置">⚙</button>
   </header>
 
+  <!-- 实时状态条 -->
+  <div class="live-bar" id="liveBar">
+    <div class="live-item loading" id="liveS1">
+      <span class="lv-dot"></span><span>一服</span><b id="liveS1Num">查询中…</b>
+    </div>
+    <span class="live-sep">·</span>
+    <div class="live-item loading" id="liveS2">
+      <span class="lv-dot"></span><span>二服</span><b id="liveS2Num">查询中…</b>
+    </div>
+    <span class="live-sep">·</span>
+    <div class="live-item" id="liveRefresh" style="cursor:pointer;opacity:.85">
+      <span>🔄 刷新</span>
+    </div>
+  </div>
+
   <!-- 滚动公告 -->
   <div class="ticker">
     <div class="ticker-track">
@@ -406,6 +447,7 @@ body{
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
       <span>🏗️ 二服指令：/alliance 城市联盟</span>
+      <span>👥 想查在线人数？直接问我"现在有多少人在线"</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
       <span>🔥 一服 sp.longvalley.cn:32922</span>
       <span>🏙️ 二服（模组·模拟大都市）a6.minekuai.com:10300</span>
@@ -413,6 +455,7 @@ body{
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
       <span>🏗️ 二服指令：/alliance 城市联盟</span>
+      <span>👥 想查在线人数？直接问我"现在有多少人在线"</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
     </div>
   </div>
@@ -428,7 +471,7 @@ body{
   <!-- 输入栏 -->
   <div class="input-bar">
     <input id="userInput" type="text" autocomplete="off"
-           placeholder="问问龙宝吧～（地址 / 玩法 / 指令 / 模组…）">
+           placeholder="问问龙宝吧～（地址 / 玩法 / 指令 / 人数…）">
     <button id="sendBtn">发送</button>
   </div>
 </div>
@@ -458,6 +501,10 @@ body{
         <span class="slider"></span>
       </label>
     </div>
+
+    <label>服务器状态 API（可选）</label>
+    <input id="statusApiInput" type="text" placeholder="https://api.mcstatus.io/v2/status/java/{addr}">
+    <p class="hint" style="margin-top:6px;font-size:11.5px;">{addr} 会被替换为 host:port。留空使用默认接口。如果默认接口被墙或限流，可换成自己的代理地址。</p>
 
     <div class="modal-actions">
       <button class="btn ghost" id="clearKeyBtn">清空</button>
@@ -563,10 +610,157 @@ const KEY_STORE   = 'longbao_ds_key';
 const BASE_STORE  = 'longbao_ds_base';
 const MODEL_STORE = 'longbao_ds_model';
 const SEARCH_STORE= 'longbao_ds_search';
+const STATUS_STORE= 'longbao_status_api';
 const DEFAULT_BASE  = 'https://api.deepseek.com';
 const DEFAULT_MODEL = 'deepseek-chat';
+const DEFAULT_STATUS_API = 'https://api.mcstatus.io/v2/status/java/{addr}';
 
-/* ==================== 知识库（喂给 DeepSeek + 本地兜底） ==================== */
+/* ==================== 服务器清单 ==================== */
+const SERVERS = [
+  { key:'s1', name:'一服（插件服）', short:'一服', host:'sp.longvalley.cn', port:32922 },
+  { key:'s2', name:'二服（模组服·模拟大都市）', short:'二服', host:'a6.minekuai.com', port:10300 }
+];
+
+/* ==================== 实时状态查询 ==================== */
+const STATUS_CACHE = {};          // { key: { ts, data } }
+const STATUS_TTL   = 30 * 1000;   // 30 秒缓存
+
+function getStatusApiTemplate(){
+  return (localStorage.getItem(STATUS_STORE) || DEFAULT_STATUS_API).trim() || DEFAULT_STATUS_API;
+}
+
+function fetchWithTimeout(url, ms){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms || 7000);
+  return fetch(url, { signal: ctrl.signal, method:'GET' })
+    .finally(() => clearTimeout(timer));
+}
+
+async function queryOneServer(srv){
+  const cached = STATUS_CACHE[srv.key];
+  if(cached && Date.now() - cached.ts < STATUS_TTL) return cached.data;
+
+  const addr = srv.host + ':' + srv.port;
+  const url  = getStatusApiTemplate().replace('{addr}', encodeURIComponent(addr));
+
+  let result;
+  try{
+    const res = await fetchWithTimeout(url, 7000);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    // 兼容 mcstatus.io v2 的结构
+    const online = !!(data && (data.online === true || data.online === undefined && data.players));
+    const playersObj = data?.players || {};
+    const list = Array.isArray(playersObj.list)
+      ? playersObj.list.map(p => p.name_clean || p.name_raw || p.name).filter(Boolean)
+      : [];
+
+    result = {
+      online: !!data?.online,
+      players: (typeof playersObj.online === 'number') ? playersObj.online : null,
+      max:     (typeof playersObj.max === 'number') ? playersObj.max : null,
+      list,
+      version: data?.version?.name_clean || data?.version?.name || '',
+      motd:    data?.motd?.clean || '',
+      error:   null
+    };
+  }catch(err){
+    result = {
+      online:false, players:null, max:null, list:[], version:'', motd:'',
+      error: String(err && err.message || err)
+    };
+  }
+  STATUS_CACHE[srv.key] = { ts: Date.now(), data: result };
+  return result;
+}
+
+async function queryAllServers(force){
+  if(force){
+    Object.keys(STATUS_CACHE).forEach(k => delete STATUS_CACHE[k]);
+  }
+  return Promise.all(SERVERS.map(async srv => ({ srv, st: await queryOneServer(srv) })));
+}
+
+/* 把查询结果格式化为回答文本（带 ** 强调，供前端渲染） */
+function formatStatusText(list){
+  const lines = ['👥 **当前服务器在线情况**：'];
+  for(const { srv, st } of list){
+    if(st.error){
+      lines.push(`· **${srv.short}**：⚠️ 查询失败（${st.error}）`);
+    }else if(!st.online){
+      lines.push(`· **${srv.short}**：⚫ 离线 / 未响应`);
+    }else{
+      const p = (st.players === null ? '?' : st.players);
+      const m = (st.max === null ? '?' : st.max);
+      lines.push(`· **${srv.short}**：🟢 **${p} / ${m}** 人在线`);
+    }
+  }
+
+  // 在线玩家列表（合并所有服的玩家）
+  const allPlayers = [];
+  for(const { st } of list){
+    if(Array.isArray(st.list) && st.list.length){
+      st.list.forEach(n => { if(!allPlayers.includes(n)) allPlayers.push(n); });
+    }
+  }
+  if(allPlayers.length){
+    const shown = allPlayers.slice(0, 20);
+    lines.push('');
+    lines.push('👤 在线玩家：' + shown.join('、') + (allPlayers.length > 20 ? ' 等' : ''));
+  }else if(list.every(x => x.st.online)){
+    lines.push('');
+    lines.push('👤 当前没有玩家在线，快来当第一个吧～');
+  }
+
+  // 版本信息
+  const verInfo = list.find(x => x.st.version)?.st.version;
+  if(verInfo){
+    lines.push('');
+    lines.push('📦 服务端版本：' + verInfo);
+  }
+
+  lines.push('');
+  lines.push('🔄 数据来自服务器状态接口，有 30 秒缓存，点击顶部状态栏可手动刷新。');
+  return lines.join('\n');
+}
+
+/* 顶部状态栏刷新 */
+async function refreshLiveBar(force){
+  const map = { s1: 'liveS1', s2: 'liveS2' };
+  const numMap = { s1: 'liveS1Num', s2: 'liveS2Num' };
+
+  // 先标记为加载中
+  for(const srv of SERVERS){
+    const el = document.getElementById(map[srv.key]);
+    if(el) el.className = 'live-item loading';
+    const numEl = document.getElementById(numMap[srv.key]);
+    if(numEl && !STATUS_CACHE[srv.key]) numEl.textContent = '查询中…';
+  }
+
+  const list = await queryAllServers(force);
+
+  for(const { srv, st } of list){
+    const el = document.getElementById(map[srv.key]);
+    const numEl = document.getElementById(numMap[srv.key]);
+    if(!el || !numEl) continue;
+
+    if(st.error){
+      el.className = 'live-item offline';
+      numEl.textContent = '查询失败';
+    }else if(!st.online){
+      el.className = 'live-item offline';
+      numEl.textContent = '离线';
+    }else{
+      el.className = 'live-item online';
+      const p = (st.players === null ? '?' : st.players);
+      const m = (st.max === null ? '?' : st.max);
+      numEl.textContent = `${p} / ${m}`;
+    }
+  }
+}
+
+/* ==================== 知识库 ==================== */
 const KNOWLEDGE = `
 【服务器名称】龙之谷物语
 【服务器定位】Minecraft Java 版服务器，包含一服（插件服）和二服（模组服）
@@ -584,7 +778,7 @@ const KNOWLEDGE = `
 - 公共垃圾桶：可点击聊天栏提示打开，暂存被清理的物品。
 - SkinsRestorer：皮肤系统，可显示正版/自定义皮肤。
 - Vault：经济系统插件，支持 /balance 查看余额。
-- ViewSlimeChunk：史莱姆区块查看插件，可用来查找史莱姆区块。
+- ViewSlimeChunk：史莱姆区块查看插件。
 
 【一服可用指令】
 - /tpa [玩家名称] —— 玩家互传（传送请求）
@@ -597,31 +791,29 @@ const KNOWLEDGE = `
 【端口】10300
 【核心玩法】模拟大都市（New Sim-U-Kraft 2.2.0）——城市模拟经营
 【核心模组列表】
-- [新：模拟大都市] New-Sim-U-Kraft 2.2.0：城市模拟经营核心，可建造城市、雇佣市民
-- Sim-U-Kraft: City Alliance：城市联盟系统，支持 /alliance 指令
-- [通用机械] Mekanism + Generators + Tools：工业科技模组，含发电机、工具、强化黑曜石等
-- [农夫乐事] Farmer's Delight：农业与烹饪
-- [傻瓜烹饪/懒人厨房] Cooking for Blockheads：厨房自动化
-- [汤姆的简易存储] Tom's Simple Storage：物品存储系统
-- [安全工艺] SecurityCraft：安全防护
-- [沉浸式飞机] Immersive Aircraft：飞行载具
-- [Xaero 的小地图/世界地图]：地图与导航
-- [热带世界] Tropicraft：热带生物群系与生物
-- [我们走过的生物群系] Oh The Biomes We've Gone：更多生物群系
-- [Waystones]：传送石碑
-- [FTB Quests / Teams / Library]：任务与队伍系统
-- [Macaw 的家具]：家具装饰
-- [龙咒异闻录] dcc + dcrapi：自定义内容
-- [树叶快速腐烂] [属性修复] [FastWorkbench] [GeckoLib] [Kotlin for Forge] [Architectury] [Balm] 等前置
+- [新：模拟大都市] New-Sim-U-Kraft 2.2.0
+- Sim-U-Kraft: City Alliance（/alliance 城市联盟）
+- [通用机械] Mekanism + Generators + Tools
+- [农夫乐事] Farmer's Delight
+- [傻瓜烹饪/懒人厨房] Cooking for Blockheads
+- [汤姆的简易存储] Tom's Simple Storage
+- [安全工艺] SecurityCraft
+- [沉浸式飞机] Immersive Aircraft
+- [Xaero 的小地图/世界地图]
+- [热带世界] Tropicraft
+- [我们走过的生物群系] Oh The Biomes We've Gone
+- [Waystones]
+- [FTB Quests / Teams / Library]
+- [Macaw 的家具]
+- [龙咒异闻录] dcc + dcrapi
+- 以及其他前置/优化模组
 
 【二服·模拟大都市玩法要点】
-- 建造城市：需要先建"建材商店"，然后是农场、面包店、住宅等
-- 雇佣市民：市民可以做建筑工、规划师、农民、商人、医生、矿物钻井工等
-- 市民有等级（会升级）、寿命、饥饿、血量，需要吃饭和就医
-- 保证市民吃饭：面包店、餐厅、肉铺等；保证市民医疗：医院、诊所
-- 矿物钻井平台：可采集矿物资源
-- 城市联盟：通过 /alliance 打开联盟菜单，与其他城市结盟
-- 经济系统：游戏内货币，可向其他玩家借贷（有利息）
+- 建造城市：先建"建材商店"，然后是农场、面包店、住宅等
+- 雇佣市民：建筑工、规划师、农民、商人、医生、矿物钻井工等
+- 市民有等级、寿命、饥饿、血量，需要吃饭和就医
+- 矿物钻井平台可采集矿物资源
+- 通过 /alliance 打开城市联盟菜单
 
 【二服常用指令】
 - /alliance —— 打开城市联盟菜单
@@ -652,10 +844,14 @@ ${KNOWLEDGE}
 5. 用户问一服指令/命令时，列出 /tpa [玩家名称]（玩家互传）、/balance（查看剩余余额），说明剩余功能可前往服务器菜单使用，并说明"如果内容不足，欢迎各位进群补充"。
 6. 用户问扫地姬/清理/垃圾桶时，说明每 10 分钟清理一次，有 60/30/10/5~1 秒倒计时，物品进入公共垃圾桶，每 3 次扫地后刷新。
 7. 用户问史莱姆区块/区块时，说明一服装有 ViewSlimeChunk 插件可查看史莱姆区块。
-8. 用户问二服模组/模拟大都市时，列出核心模组，并说明城市模拟经营玩法（建材商店、市民、医生、工业等）。
+8. 用户问二服模组/模拟大都市时，列出核心模组，并说明城市模拟经营玩法。
 9. 用户问二服指令时，说明 /alliance 打开城市联盟菜单，其余通过模组 GUI。
 10. 知识库中没有的服务器相关疑问，礼貌说明不清楚，并建议加群 1059442560。
-11. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。`;
+11. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。
+
+【在线人数】
+如果系统消息里提供了【实时服务器状态】数据，回答人数问题时必须严格使用该数据，
+不允许编造人数，也不要说"建议你自己进服看"。如果系统没有提供实时数据，就如实说明暂时查不到。`;
 
 const WEB_SEARCH_ADDON = `
 
@@ -670,29 +866,29 @@ const WEB_SEARCH_ADDON = `
 
 /* ==================== 本地关键词规则 ==================== */
 const RULES = [
-  /* —— 指令类放最前 —— */
+  /* —— 指令类 —— */
   {
     keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键','alliance','联盟'],
     reply: '🕹️ 服务器常用指令：\n· 一服：**/tpa [玩家名称]** 玩家互传 · **/balance** 查看余额\n· 二服：**/alliance** 打开城市联盟菜单\n· 剩余功能可前往服务器菜单或模组 GUI 使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议'
   },
-  /* —— 扫地姬 / 清理 / 垃圾桶 —— */
+  /* —— 扫地姬 —— */
   {
     keys: ['扫地姬','扫地','清理','垃圾桶','掉落物','清除','刷新'],
     reply: '🧹 **扫地姬** 每 10 分钟清理一次掉落物和实体：\n· 会提前 60 / 30 / 10 / 5~1 秒倒计时提醒\n· 清理后物品进入**公共垃圾桶**（点击聊天栏提示可打开）\n· 每 **3 次扫地**后公共垃圾桶刷新一次\n\n记得及时捡走重要物品哦～'
   },
-  /* —— 史莱姆区块 / 区块 —— */
+  /* —— 史莱姆区块 —— */
   {
     keys: ['史莱姆区块','史莱姆','区块','chunk','slime'],
     reply: '🟩 一服装有 **ViewSlimeChunk** 插件，可以用来查看**史莱姆区块**～\n在服务器菜单或插件命令里找到对应功能即可查看。\n\n💬 具体用法可以加群 **1059442560** 问管理'
   },
   /* —— 模组 / 模拟大都市 —— */
   {
-    keys: ['模组','mod','模拟大都市','二服','2服','第二个服','simukraft','sim-u-kraft','城市','市民','建筑工','mekanism','通用机械'],
+    keys: ['模组','mod','模拟大都市','二服','2服','第二个服','simukraft','sim-u-kraft','mekanism','通用机械'],
     reply: '🏙️ 二服（模组·模拟大都市）地址：**a6.minekuai.com:10300**\n\n核心模组：\n· **新·模拟大都市** —— 城市模拟经营\n· **通用机械 Mekanism** —— 工业科技\n· **农夫乐事 / 傻瓜烹饪** —— 农业烹饪\n· **汤姆的简易存储** —— 存储系统\n· 还有安全工艺、沉浸式飞机、热带世界、Waystones 等\n\n玩法：建建材商店 → 农场 → 住宅，雇佣市民，发展工业与商业～'
   },
   /* —— 模拟大都市玩法细节 —— */
   {
-    keys: ['市民','村民','雇佣','医生','医院','诊所','吃饭','饿','寿命','等级','矿物钻井','钻井','农田',' farmland','build_box'],
+    keys: ['市民','村民','雇佣','医生','医院','诊所','吃饭','饿','寿命','等级','矿物钻井','钻井','农田','build_box'],
     reply: '👥 **模拟大都市**玩法小贴士：\n· 先建 **建材商店**，否则很多建造都做不了\n· 市民需要吃饭（面包店/餐厅/肉铺）和就医（医院/诊所）\n· 市民有等级、寿命、饥饿值和血量\n· **矿物钻井平台**可以采集矿物资源\n· 多建"1单元"住宅会吸引新市民入住\n\n有疑问可以加群 **1059442560** 一起交流～'
   },
   /* —— bug / 反馈 —— */
@@ -715,7 +911,7 @@ const RULES = [
     keys: ['玩法','模式','内容','生存','探索','建筑','养老','做什么','有什么玩','肝'],
     reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n一服偏原版生存，二服主打**模拟大都市**城市经营。\n想肝就肝，想躺就躺，总有一款适合你！'
   },
-  /* —— 版本 / 服务端 —— */
+  /* —— 版本 —— */
   {
     keys: ['版本','服务端','purpur','folia','neoforge','forge','1.21','1.20'],
     reply: '📦 服务器版本信息：\n· 一服：**Purpur / Folia**（插件服，原版生存）\n· 二服：**NeoForge 21.1.248 · Minecraft 1.21.1**（模组服）\n\n进服前请确认客户端版本匹配～'
@@ -728,12 +924,12 @@ const RULES = [
   /* —— 你好 —— */
   {
     keys: ['你好','您好','hi','hello','在吗','嗨','哈喽','你是谁','介绍下自己'],
-    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、一服指令、扫地姬、史莱姆区块、二服模组、模拟大都市玩法、服务器规则，或者加群反馈问题！'
+    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、在线人数、一服指令、扫地姬、史莱姆区块、二服模组、模拟大都市玩法、服务器规则，或者加群反馈问题！'
   },
   /* —— 帮助 —— */
   {
     keys: ['帮助','能做什么','会什么','怎么用','使用说明'],
-    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n🌿 玩法介绍\n🕹️ 一服指令 · 扫地姬 · 史莱姆区块\n🏙️ 二服模组 / 模拟大都市玩法\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
+    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n👥 实时在线人数\n🌿 玩法介绍\n🕹️ 一服指令 · 扫地姬 · 史莱姆区块\n🏙️ 二服模组 / 模拟大都市玩法\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
   },
   /* —— 服务器宽泛 —— */
   {
@@ -743,7 +939,7 @@ const RULES = [
 ];
 
 const FALLBACK =
-  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 玩法 / 一服指令 / 扫地姬 / 史莱姆区块 / 二服模组 / 模拟大都市玩法 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
+  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 在线人数 / 玩法 / 一服指令 / 扫地姬 / 史莱姆区块 / 二服模组 / 模拟大都市玩法 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
 
 function localReply(text){
   const t = text.toLowerCase();
@@ -751,6 +947,25 @@ function localReply(text){
     if(rule.keys.some(k => t.includes(k.toLowerCase()))) return rule.reply;
   }
   return FALLBACK;
+}
+
+/* ==================== 在线人数意图识别 ==================== */
+function isAskingPlayers(text){
+  const t = (text || '').toLowerCase();
+
+  // 直接短语
+  const direct = [
+    '在线人数','多少人','几个人','几个人在','多少人玩','在线玩家','玩家数量',
+    '有人在吗','有人吗','谁在线','谁在服','服里人','服务器人多','服务器人少',
+    '多少玩家','几个玩家','玩家数','当前人数','现在多少人','多少人玩','在线多少',
+    '人数','满人','满了','人多吗','人少吗','有人玩','有空位','空位'
+  ];
+  if(direct.some(k => t.includes(k))) return true;
+
+  // 组合判断："人 / 玩家" + 询问词
+  const hasSubject = /人|玩家/.test(t);
+  const hasAsk = /多少|几个|几点|在线|在玩|有谁|谁在|人多|人少|满了|空|满/.test(t);
+  return hasSubject && hasAsk;
 }
 
 /* ==================== 喵~ 句尾处理 ==================== */
@@ -807,6 +1022,9 @@ function escapeHtml(s){
 function format(s){
   return escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
+function stripMd(s){
+  return String(s || '').replace(/\*\*/g, '');
+}
 function scrollToBottom(){
   requestAnimationFrame(() => { chatScroll.scrollTop = chatScroll.scrollHeight; });
 }
@@ -856,11 +1074,11 @@ function showTyping(){
 function getKey(){ return (localStorage.getItem(KEY_STORE) || '').trim(); }
 function isSearchOn(){ return localStorage.getItem(SEARCH_STORE) === '1'; }
 
-function buildSystemPrompt(){
-  return SYSTEM_PROMPT_BASE + (isSearchOn() ? WEB_SEARCH_ADDON : '');
+function buildSystemPrompt(extraSystem){
+  return SYSTEM_PROMPT_BASE + (isSearchOn() ? WEB_SEARCH_ADDON : '') + (extraSystem ? '\n\n' + extraSystem : '');
 }
 
-async function askDeepSeek(history){
+async function askDeepSeek(history, extraSystem){
   const key = getKey();
   if(!key) return null;
 
@@ -875,7 +1093,7 @@ async function askDeepSeek(history){
     },
     body: JSON.stringify({
       model,
-      messages: [{ role:'system', content: buildSystemPrompt() }, ...history],
+      messages: [{ role:'system', content: buildSystemPrompt(extraSystem) }, ...history],
       temperature: 0.65,
       max_tokens: 900,
       stream: false
@@ -907,10 +1125,43 @@ async function handleSend(raw){
   if(history.length > 16) history = history.slice(-16);
 
   const typing = showTyping();
-  await sleep(320);
+  await sleep(300);
 
+  /* 1) 判断是否在问在线人数 → 先查实时状态 */
+  let statusList = null;
+  const askingPlayers = isAskingPlayers(text);
+
+  if(askingPlayers){
+    try{
+      statusList = await queryAllServers(false);   // 使用缓存，避免频繁请求
+      // 同步更新顶部状态栏
+      refreshLiveBar(false);
+    }catch(e){
+      console.warn('[龙宝] 状态查询失败：', e);
+    }
+  }
+
+  /* 2) 生成回答 */
   let reply = null;
-  if(getKey()){
+
+  // 2a) 有 API Key 且问人数：把实时数据注入系统提示，让 AI 用自然语言回答
+  if(askingPlayers && statusList && getKey()){
+    const statusBlock = '【实时服务器状态】\n' + stripMd(formatStatusText(statusList));
+    try{
+      reply = await askDeepSeek(history, statusBlock);
+    }catch(err){
+      console.warn('[龙宝] DeepSeek 调用失败：', err);
+      toast('DeepSeek 接口调用失败，已切换为本地回答');
+    }
+  }
+
+  // 2b) 没有 API Key 但问人数：直接返回格式化后的实时数据
+  if(!reply && askingPlayers && statusList){
+    reply = formatStatusText(statusList);
+  }
+
+  // 2c) 一般问题：走 API
+  if(!reply && getKey()){
     try{
       reply = await askDeepSeek(history);
     }catch(err){
@@ -919,8 +1170,9 @@ async function handleSend(raw){
     }
   }
 
+  // 2d) 兜底：本地关键词规则
   if(!reply){
-    await sleep(380);
+    await sleep(360);
     reply = localReply(text);
   }
 
@@ -952,10 +1204,10 @@ inputEl.addEventListener('keydown', e => {
 
 /* 快捷问题 */
 const QUICK_LIST = [
+  '现在有多少人在线？',
   '服务器地址是什么？',
   '一服有什么可用指令？',
   '扫地姬多久清理一次？',
-  '史莱姆区块怎么看？',
   '二服有哪些模组？',
   '模拟大都市怎么玩？',
   '服务器规则是什么？',
@@ -974,6 +1226,7 @@ const apiKeyInput     = document.getElementById('apiKeyInput');
 const baseUrlInput    = document.getElementById('baseUrlInput');
 const modelInput      = document.getElementById('modelInput');
 const webSearchToggle = document.getElementById('webSearchToggle');
+const statusApiInput  = document.getElementById('statusApiInput');
 
 function refreshStatus(){
   const hasKey = !!getKey();
@@ -988,6 +1241,7 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
   baseUrlInput.value = localStorage.getItem(BASE_STORE) || DEFAULT_BASE;
   modelInput.value   = localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL;
   webSearchToggle.checked = isSearchOn();
+  statusApiInput.value = localStorage.getItem(STATUS_STORE) || '';
   modalMask.classList.add('open');
 });
 
@@ -1000,22 +1254,25 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const b = baseUrlInput.value.trim() || DEFAULT_BASE;
   const m = modelInput.value.trim() || DEFAULT_MODEL;
   const s = webSearchToggle.checked;
+  const sa = statusApiInput.value.trim();
 
   if(k){
     localStorage.setItem(KEY_STORE, k);
-    localStorage.setItem(BASE_STORE, b);
-    localStorage.setItem(MODEL_STORE, m);
-    localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
     toast(s ? '✅ 已保存，龙宝已接入 DeepSeek 并开启联网搜索' : '✅ 已保存，龙宝已接入 DeepSeek');
   }else{
     localStorage.removeItem(KEY_STORE);
-    localStorage.setItem(BASE_STORE, b);
-    localStorage.setItem(MODEL_STORE, m);
-    localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
     toast('已清空 API Key，使用本地知识库回答');
   }
+  localStorage.setItem(BASE_STORE, b);
+  localStorage.setItem(MODEL_STORE, m);
+  localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
+
+  if(sa) localStorage.setItem(STATUS_STORE, sa);
+  else   localStorage.removeItem(STATUS_STORE);
+
   refreshStatus();
   modalMask.classList.remove('open');
+  refreshLiveBar(true);   // 状态 API 可能变了，强制刷新
 });
 
 document.getElementById('clearKeyBtn').addEventListener('click', () => {
@@ -1025,15 +1282,27 @@ document.getElementById('clearKeyBtn').addEventListener('click', () => {
   toast('已清空 API Key');
 });
 
+/* ==================== 状态栏刷新按钮 ==================== */
+document.getElementById('liveRefresh').addEventListener('click', () => {
+  refreshLiveBar(true);
+  toast('已刷新服务器状态');
+});
+
 /* ==================== 初始化 ==================== */
 (function init(){
   refreshStatus();
+
+  // 首屏拉一次实时状态
+  refreshLiveBar(false);
+  // 每 60 秒自动刷新一次状态栏
+  setInterval(() => refreshLiveBar(true), 60 * 1000);
 
   // 欢迎语
   setTimeout(() => {
     addMessage('bot',
       '🐉🔥 你好呀，我是**龙宝**，龙之谷物语的智能客服！\n\n' +
       '我已经记住了两个服务器的信息，可以问我：\n' +
+      '· 👥 **在线人数**（顶部状态栏也会实时刷新）\n' +
       '· 🔥 服务器地址 / 怎么进服\n' +
       '· 🕹️ 一服指令（/tpa · /balance）\n' +
       '· 🧹 扫地姬 / 公共垃圾桶\n' +
