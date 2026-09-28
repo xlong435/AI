@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0b0403">
-<!-- 网页图标：电脑标签页 + 手机添加到桌面，统一使用 icon.webp -->
 <link rel="icon" type="image/webp" href="icon.webp">
 <link rel="shortcut icon" type="image/webp" href="icon.webp">
 <link rel="apple-touch-icon" href="icon.webp">
@@ -21,10 +20,7 @@
   --border:rgba(255,120,40,.25);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{
-  height:100%;
-  -webkit-text-size-adjust:100%;
-}
+html,body{height:100%;-webkit-text-size-adjust:100%;}
 body{
   margin:0;
   font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
@@ -40,21 +36,13 @@ body{
   background:var(--bg0);
 }
 .bg-video{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  opacity:0;
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;opacity:0;
   transition:opacity 1.2s ease-in-out;
-  will-change:opacity;
-  pointer-events:none;
-  background:transparent;
+  will-change:opacity;pointer-events:none;background:transparent;
 }
 .bg::after{
-  content:"";
-  position:absolute;inset:0;z-index:2;
-  pointer-events:none;
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
   background:
     radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(6,1,0,.55) 100%),
     linear-gradient(180deg, rgba(6,1,0,.25) 0%, transparent 22%, transparent 70%, rgba(6,1,0,.55) 100%);
@@ -205,6 +193,17 @@ body{
 }
 .bubble strong{color:#ffcf7a;font-weight:800;}
 .msg.user .bubble strong{color:#2b0600;}
+.bubble a{color:#ffb347;text-decoration:underline;word-break:break-all;}
+
+/* 搜索来源 */
+.search-source{
+  display:block;margin-top:8px;padding-top:8px;
+  border-top:1px dashed rgba(255,120,40,.3);
+  font-size:12px;color:#d18a68;
+}
+.search-source-title{color:#ffb347;font-weight:700;margin-bottom:4px;}
+.search-source a{color:#ffc77a;text-decoration:none;margin-right:10px;word-break:break-all;}
+.search-source a:hover{text-decoration:underline;}
 
 /* 打字中 */
 .typing{display:flex;gap:5px;align-items:center;padding:15px 18px;}
@@ -271,12 +270,16 @@ body{
 }
 .modal-mask.open{display:grid;}
 .modal{
-  width:100%;max-width:460px;border-radius:20px;padding:24px;
+  width:100%;max-width:480px;border-radius:20px;padding:24px;
   background:linear-gradient(160deg,#210906,#110302);
   border:1px solid rgba(255,120,40,.3);
   box-shadow:0 30px 90px rgba(0,0,0,.75), 0 0 70px rgba(255,60,0,.16);
   animation:msgIn .3s ease;
+  max-height:90vh;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(255,90,20,.5) transparent;
 }
+.modal::-webkit-scrollbar{width:6px;}
+.modal::-webkit-scrollbar-thumb{background:linear-gradient(#ff5a14,#ff9a2e);border-radius:8px;}
 .modal h2{margin:0 0 8px;font-size:18px;color:#ffd0a8;}
 .modal .hint{font-size:12.5px;color:var(--muted);margin:0 0 6px;line-height:1.7;}
 .modal label{display:block;font-size:12.5px;color:#ffb08a;margin:15px 0 6px;font-weight:600;}
@@ -305,9 +308,7 @@ body{
 }
 .toggle-row span{font-size:13px;color:#ffb08a;font-weight:600;}
 .toggle-row small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;}
-.switch{
-  position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto;
-}
+.switch{position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto;}
 .switch input{opacity:0;width:0;height:0;}
 .switch .slider{
   position:absolute;cursor:pointer;inset:0;
@@ -319,6 +320,22 @@ body{
 }
 .switch input:checked + .slider{background:linear-gradient(135deg,#ff8a1e,#ff2d00);}
 .switch input:checked + .slider::before{transform:translateX(20px);}
+
+/* 搜索源标签 */
+.tabs{
+  display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;
+}
+.tab{
+  flex:1;min-width:80px;padding:8px 10px;border-radius:10px;
+  font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;
+  background:rgba(255,90,20,.07);border:1px solid rgba(255,120,40,.25);
+  color:#d19a80;transition:.2s;font-family:inherit;
+}
+.tab.active{
+  background:linear-gradient(135deg,#ff8a1e,#ff2d00);color:#210500;
+  border-color:transparent;
+}
+.tab:hover{color:#fff;}
 
 /* ===== Toast ===== */
 .toast{
@@ -399,7 +416,6 @@ body{
 </head>
 <body>
 
-<!-- 背景视频：双视频交叉叠化，无缝循环 -->
 <div class="bg">
   <video class="bg-video" id="vidA" src="background.mp4"
          muted playsinline webkit-playsinline preload="auto" disablepictureinpicture></video>
@@ -408,7 +424,6 @@ body{
 </div>
 
 <div class="app">
-  <!-- 顶栏 -->
   <header class="topbar">
     <div class="brand">
       <div class="avatar-ring">
@@ -423,7 +438,6 @@ body{
     <button class="icon-btn" id="settingsBtn" title="API 设置">⚙</button>
   </header>
 
-  <!-- 实时状态条 -->
   <div class="live-bar" id="liveBar">
     <div class="live-item loading" id="liveS1">
       <span class="lv-dot"></span><span>一服</span><b id="liveS1Num">查询中…</b>
@@ -438,7 +452,6 @@ body{
     </div>
   </div>
 
-  <!-- 滚动公告 -->
   <div class="ticker">
     <div class="ticker-track">
       <span>🔥 一服 sp.longvalley.cn:32922</span>
@@ -447,7 +460,7 @@ body{
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
       <span>🏗️ 二服指令：/alliance 城市联盟</span>
-      <span>👥 想查在线人数？直接问我"现在有多少人在线"</span>
+      <span>🌐 联网搜索已上线：MC 合成 / 生物 / 附魔都能问</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
       <span>🔥 一服 sp.longvalley.cn:32922</span>
       <span>🏙️ 二服（模组·模拟大都市）a6.minekuai.com:10300</span>
@@ -455,23 +468,20 @@ body{
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
       <span>🏗️ 二服指令：/alliance 城市联盟</span>
-      <span>👥 想查在线人数？直接问我"现在有多少人在线"</span>
+      <span>🌐 联网搜索已上线：MC 合成 / 生物 / 附魔都能问</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
     </div>
   </div>
 
-  <!-- 聊天区 -->
   <main class="chat-scroll" id="chatScroll">
     <div id="messages"></div>
   </main>
 
-  <!-- 快捷问题 -->
   <div class="quick" id="quick"></div>
 
-  <!-- 输入栏 -->
   <div class="input-bar">
     <input id="userInput" type="text" autocomplete="off"
-           placeholder="问问龙宝吧～（地址 / 玩法 / 指令 / 人数…）">
+           placeholder="问问龙宝吧～（地址 / 玩法 / 指令 / 人数 / MC问题…）">
     <button id="sendBtn">发送</button>
   </div>
 </div>
@@ -480,7 +490,7 @@ body{
 <div class="modal-mask" id="modalMask">
   <div class="modal">
     <h2>🔥 龙宝设置</h2>
-    <p class="hint">不填 API Key 时，龙宝会用内置知识库回答服务器相关问题。填写后优先调用 DeepSeek，并可开启联网搜索解答 MC 通用问题。</p>
+    <p class="hint">不填 API Key 时，龙宝会用内置知识库回答服务器相关问题。填写后可调用 DeepSeek 并开启联网搜索。</p>
 
     <label>DeepSeek API Key</label>
     <input id="apiKeyInput" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" autocomplete="off">
@@ -491,10 +501,11 @@ body{
     <label>模型名称</label>
     <input id="modelInput" type="text" placeholder="deepseek-chat">
 
+    <!-- 联网搜索 -->
     <div class="toggle-row">
       <div>
         <span>联网搜索</span>
-        <small>开启后允许回答 MC Wiki / MC 百科等通用问题</small>
+        <small>开启后会先搜索网络，再结合搜索结果回答</small>
       </div>
       <label class="switch">
         <input type="checkbox" id="webSearchToggle">
@@ -502,42 +513,48 @@ body{
       </label>
     </div>
 
+    <label>搜索源</label>
+    <div class="tabs" id="searchTabs">
+      <button type="button" class="tab" data-provider="ddg">DuckDuckGo</button>
+      <button type="button" class="tab" data-provider="wiki">Wikipedia</button>
+      <button type="button" class="tab" data-provider="serper">Serper(Google)</button>
+      <button type="button" class="tab" data-provider="bing">Bing</button>
+    </div>
+    <p class="hint" style="margin-top:8px;font-size:11.5px;" id="searchHint">
+      DuckDuckGo / Wikipedia 免费且无需 Key，开箱即用。Serper 和 Bing 需要填各自的 API Key，效果更好。
+    </p>
+
+    <label id="searchKeyLabel" style="display:none;">搜索 API Key</label>
+    <input id="searchKeyInput" type="password" placeholder="" autocomplete="off" style="display:none;">
+
     <label>服务器状态 API（可选）</label>
     <input id="statusApiInput" type="text" placeholder="https://api.mcstatus.io/v2/status/java/{addr}">
-    <p class="hint" style="margin-top:6px;font-size:11.5px;">{addr} 会被替换为 host:port。留空使用默认接口。如果默认接口被墙或限流，可换成自己的代理地址。</p>
 
     <div class="modal-actions">
       <button class="btn ghost" id="clearKeyBtn">清空</button>
       <button class="btn primary" id="saveBtn">保存</button>
     </div>
 
-    <p class="warn">⚠️ 浏览器直连 API 会暴露 Key，请仅在个人设备使用。若接口调用失败，龙宝会自动切换为本地知识库回答。</p>
+    <p class="warn">⚠️ 浏览器直连 API 会暴露 Key，请仅在个人设备使用。部分搜索接口可能有跨域限制，如果搜索失败龙宝会自动跳过搜索回答。</p>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ==================== 背景视频：叠化循环 ==================== */
+/* ==================== 背景视频 ==================== */
 (function initVideoBg(){
   const vidA = document.getElementById('vidA');
   const vidB = document.getElementById('vidB');
-  const FADE_MS = 1200;
-  const FADE_S  = FADE_MS / 1000;
+  const FADE_MS = 1200, FADE_S = FADE_MS / 1000;
 
-  let active = vidA;
-  let standby = vidB;
-  let switching = false;
-  let started = false;
+  let active = vidA, standby = vidB;
+  let switching = false, started = false;
 
   function resetVideo(v){
-    try{
-      v.pause();
-      v.currentTime = 0;
-    }catch(e){}
+    try{ v.pause(); v.currentTime = 0; }catch(e){}
     v.style.opacity = '0';
   }
-
   function beginPlayback(){
     if(started) return;
     started = true;
@@ -547,22 +564,17 @@ body{
     if(p && p.catch) p.catch(()=>{});
     requestAnimationFrame(tick);
   }
-
   function crossfade(){
     if(switching) return;
     switching = true;
-
     try{ standby.currentTime = 0; }catch(e){}
     const p = standby.play();
     if(p && p.catch) p.catch(()=>{});
-
     requestAnimationFrame(() => {
       standby.style.opacity = '1';
       active.style.opacity = '0';
     });
-
     const oldActive = active;
-
     setTimeout(() => {
       active = standby;
       standby = oldActive;
@@ -570,33 +582,19 @@ body{
       switching = false;
     }, FADE_MS + 120);
   }
-
   function tick(){
     requestAnimationFrame(tick);
     if(switching || !started) return;
-
     const v = active;
     if(!v || v.readyState < 2) return;
     if(!v.duration || !isFinite(v.duration) || v.duration <= FADE_S * 2) return;
-
-    if(v.currentTime >= v.duration - FADE_S){
-      crossfade();
-    }
+    if(v.currentTime >= v.duration - FADE_S) crossfade();
   }
-
-  if(vidA.readyState >= 2){
-    beginPlayback();
-  }else{
+  if(vidA.readyState >= 2) beginPlayback();
+  else {
     vidA.addEventListener('loadeddata', beginPlayback, { once:true });
     setTimeout(beginPlayback, 3000);
   }
-
-  [vidA, vidB].forEach(v => {
-    v.addEventListener('error', () => {
-      console.warn('[背景视频] 加载失败：', v.src);
-    });
-  });
-
   document.addEventListener('visibilitychange', () => {
     if(!document.hidden && started){
       const p = active.play();
@@ -605,15 +603,19 @@ body{
   });
 })();
 
-/* ==================== 存储 Key ==================== */
+/* ==================== 存储 ==================== */
 const KEY_STORE   = 'longbao_ds_key';
 const BASE_STORE  = 'longbao_ds_base';
 const MODEL_STORE = 'longbao_ds_model';
 const SEARCH_STORE= 'longbao_ds_search';
+const PROVIDER_STORE = 'longbao_search_provider';
+const SEARCHKEY_STORE= 'longbao_search_key';
 const STATUS_STORE= 'longbao_status_api';
+
 const DEFAULT_BASE  = 'https://api.deepseek.com';
 const DEFAULT_MODEL = 'deepseek-chat';
 const DEFAULT_STATUS_API = 'https://api.mcstatus.io/v2/status/java/{addr}';
+const DEFAULT_PROVIDER = 'ddg';
 
 /* ==================== 服务器清单 ==================== */
 const SERVERS = [
@@ -621,21 +623,19 @@ const SERVERS = [
   { key:'s2', name:'二服（模组服·模拟大都市）', short:'二服', host:'a6.minekuai.com', port:10300 }
 ];
 
-/* ==================== 实时状态查询 ==================== */
-const STATUS_CACHE = {};          // { key: { ts, data } }
-const STATUS_TTL   = 30 * 1000;   // 30 秒缓存
+/* ==================== 实时状态 ==================== */
+const STATUS_CACHE = {};
+const STATUS_TTL   = 30 * 1000;
 
 function getStatusApiTemplate(){
   return (localStorage.getItem(STATUS_STORE) || DEFAULT_STATUS_API).trim() || DEFAULT_STATUS_API;
 }
-
-function fetchWithTimeout(url, ms){
+function fetchWithTimeout(url, ms, opts){
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), ms || 7000);
-  return fetch(url, { signal: ctrl.signal, method:'GET' })
+  const timer = setTimeout(() => ctrl.abort(), ms || 8000);
+  return fetch(url, Object.assign({ signal: ctrl.signal, method:'GET' }, opts || {}))
     .finally(() => clearTimeout(timer));
 }
-
 async function queryOneServer(srv){
   const cached = STATUS_CACHE[srv.key];
   if(cached && Date.now() - cached.ts < STATUS_TTL) return cached.data;
@@ -645,113 +645,78 @@ async function queryOneServer(srv){
 
   let result;
   try{
-    const res = await fetchWithTimeout(url, 7000);
+    const res = await fetchWithTimeout(url, 8000, {
+      headers: { 'User-Agent': 'Mozilla/5.0 LongBao-MCStatus/1.0' }
+    });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-
-    // 兼容 mcstatus.io v2 的结构
-    const online = !!(data && (data.online === true || data.online === undefined && data.players));
     const playersObj = data?.players || {};
     const list = Array.isArray(playersObj.list)
       ? playersObj.list.map(p => p.name_clean || p.name_raw || p.name).filter(Boolean)
       : [];
-
     result = {
       online: !!data?.online,
       players: (typeof playersObj.online === 'number') ? playersObj.online : null,
       max:     (typeof playersObj.max === 'number') ? playersObj.max : null,
       list,
       version: data?.version?.name_clean || data?.version?.name || '',
-      motd:    data?.motd?.clean || '',
       error:   null
     };
   }catch(err){
-    result = {
-      online:false, players:null, max:null, list:[], version:'', motd:'',
-      error: String(err && err.message || err)
-    };
+    result = { online:false, players:null, max:null, list:[], version:'', error:String(err && err.message || err) };
   }
   STATUS_CACHE[srv.key] = { ts: Date.now(), data: result };
   return result;
 }
-
 async function queryAllServers(force){
-  if(force){
-    Object.keys(STATUS_CACHE).forEach(k => delete STATUS_CACHE[k]);
-  }
+  if(force) Object.keys(STATUS_CACHE).forEach(k => delete STATUS_CACHE[k]);
   return Promise.all(SERVERS.map(async srv => ({ srv, st: await queryOneServer(srv) })));
 }
-
-/* 把查询结果格式化为回答文本（带 ** 强调，供前端渲染） */
 function formatStatusText(list){
   const lines = ['👥 **当前服务器在线情况**：'];
   for(const { srv, st } of list){
-    if(st.error){
-      lines.push(`· **${srv.short}**：⚠️ 查询失败（${st.error}）`);
-    }else if(!st.online){
-      lines.push(`· **${srv.short}**：⚫ 离线 / 未响应`);
-    }else{
+    if(st.error) lines.push(`· **${srv.short}**：⚠️ 查询失败（${st.error}）`);
+    else if(!st.online) lines.push(`· **${srv.short}**：⚫ 离线 / 未响应`);
+    else {
       const p = (st.players === null ? '?' : st.players);
       const m = (st.max === null ? '?' : st.max);
       lines.push(`· **${srv.short}**：🟢 **${p} / ${m}** 人在线`);
     }
   }
-
-  // 在线玩家列表（合并所有服的玩家）
   const allPlayers = [];
   for(const { st } of list){
-    if(Array.isArray(st.list) && st.list.length){
-      st.list.forEach(n => { if(!allPlayers.includes(n)) allPlayers.push(n); });
-    }
+    if(Array.isArray(st.list)) st.list.forEach(n => { if(!allPlayers.includes(n)) allPlayers.push(n); });
   }
   if(allPlayers.length){
     const shown = allPlayers.slice(0, 20);
     lines.push('');
     lines.push('👤 在线玩家：' + shown.join('、') + (allPlayers.length > 20 ? ' 等' : ''));
-  }else if(list.every(x => x.st.online)){
+  } else if(list.every(x => x.st.online)){
     lines.push('');
     lines.push('👤 当前没有玩家在线，快来当第一个吧～');
   }
-
-  // 版本信息
-  const verInfo = list.find(x => x.st.version)?.st.version;
-  if(verInfo){
-    lines.push('');
-    lines.push('📦 服务端版本：' + verInfo);
-  }
-
-  lines.push('');
-  lines.push('🔄 数据来自服务器状态接口，有 30 秒缓存，点击顶部状态栏可手动刷新。');
+  const ver = list.find(x => x.st.version)?.st.version;
+  if(ver) lines.push('', '📦 服务端版本：' + ver);
+  lines.push('', '🔄 数据来自服务器状态接口，有 30 秒缓存，点击顶部状态栏可手动刷新。');
   return lines.join('\n');
 }
-
-/* 顶部状态栏刷新 */
 async function refreshLiveBar(force){
   const map = { s1: 'liveS1', s2: 'liveS2' };
   const numMap = { s1: 'liveS1Num', s2: 'liveS2Num' };
-
-  // 先标记为加载中
   for(const srv of SERVERS){
     const el = document.getElementById(map[srv.key]);
     if(el) el.className = 'live-item loading';
     const numEl = document.getElementById(numMap[srv.key]);
     if(numEl && !STATUS_CACHE[srv.key]) numEl.textContent = '查询中…';
   }
-
   const list = await queryAllServers(force);
-
   for(const { srv, st } of list){
     const el = document.getElementById(map[srv.key]);
     const numEl = document.getElementById(numMap[srv.key]);
     if(!el || !numEl) continue;
-
-    if(st.error){
-      el.className = 'live-item offline';
-      numEl.textContent = '查询失败';
-    }else if(!st.online){
-      el.className = 'live-item offline';
-      numEl.textContent = '离线';
-    }else{
+    if(st.error){ el.className = 'live-item offline'; numEl.textContent = '查询失败'; }
+    else if(!st.online){ el.className = 'live-item offline'; numEl.textContent = '离线'; }
+    else {
       el.className = 'live-item online';
       const p = (st.players === null ? '?' : st.players);
       const m = (st.max === null ? '?' : st.max);
@@ -760,10 +725,159 @@ async function refreshLiveBar(force){
   }
 }
 
+/* ==================== 联网搜索 ==================== */
+function getSearchProvider(){ return localStorage.getItem(PROVIDER_STORE) || DEFAULT_PROVIDER; }
+function getSearchKey(){ return (localStorage.getItem(SEARCHKEY_STORE) || '').trim(); }
+
+/* DuckDuckGo Instant Answer API（免费，支持 CORS，无需 Key） */
+async function searchDDG(query){
+  const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1&kl=cn-zh`;
+  const res = await fetchWithTimeout(url, 8000);
+  if(!res.ok) throw new Error('DDG HTTP ' + res.status);
+  const data = await res.json();
+  const results = [];
+  if(data.AbstractText){
+    results.push({
+      title: data.Heading || query,
+      snippet: data.AbstractText,
+      url: data.AbstractURL || ''
+    });
+  }
+  if(Array.isArray(data.RelatedTopics)){
+    data.RelatedTopics.slice(0, 6).forEach(t => {
+      if(t.Text && t.FirstURL){
+        results.push({ title: t.Text.slice(0, 80), snippet: t.Text, url: t.FirstURL });
+      } else if(Array.isArray(t.Topics)){
+        t.Topics.slice(0, 2).forEach(tt => {
+          if(tt.Text && tt.FirstURL){
+            results.push({ title: tt.Text.slice(0, 80), snippet: tt.Text, url: tt.FirstURL });
+          }
+        });
+      }
+    });
+  }
+  return results.slice(0, 5);
+}
+
+/* Wikipedia API（免费，支持 CORS，中文优先） */
+async function searchWikipedia(query){
+  const endpoints = ['zh.wikipedia.org', 'en.wikipedia.org'];
+  for(const host of endpoints){
+    try{
+      const url = `https://${host}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=5`;
+      const res = await fetchWithTimeout(url, 8000);
+      if(!res.ok) continue;
+      const data = await res.json();
+      const items = data?.query?.search || [];
+      if(items.length){
+        return items.map(it => ({
+          title: it.title,
+          snippet: String(it.snippet || '').replace(/<[^>]+>/g, ''),
+          url: `https://${host}/wiki/${encodeURIComponent(it.title.replace(/ /g,'_'))}`
+        }));
+      }
+    }catch(e){ /* try next */ }
+  }
+  return [];
+}
+
+/* Serper.dev (Google 搜索结果，需 Key，支持 CORS) */
+async function searchSerper(query){
+  const key = getSearchKey();
+  if(!key) throw new Error('未填写 Serper API Key');
+  const res = await fetchWithTimeout('https://google.serper.dev/search', 9000, {
+    method: 'POST',
+    headers: { 'X-API-KEY': key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: query, num: 6, hl: 'zh-cn' })
+  });
+  if(!res.ok) throw new Error('Serper HTTP ' + res.status);
+  const data = await res.json();
+  const results = [];
+  if(data.answerBox){
+    const ab = data.answerBox;
+    const text = ab.answer || ab.snippet || ab.snippetHighlighted?.join?.(' ') || '';
+    if(text) results.push({ title: ab.title || '答案摘要', snippet: text, url: ab.link || '' });
+  }
+  if(data.knowledgeGraph){
+    const kg = data.knowledgeGraph;
+    if(kg.description) results.push({
+      title: kg.title || '知识图谱',
+      snippet: kg.description + (kg.attributes ? ' | ' + Object.entries(kg.attributes).map(([k,v])=>k+': '+v).join(' | ') : ''),
+      url: kg.descriptionLink || ''
+    });
+  }
+  (data.organic || []).forEach(o => {
+    results.push({ title: o.title, snippet: o.snippet || '', url: o.link });
+  });
+  return results.slice(0, 6);
+}
+
+/* Bing Web Search (需 Key + Endpoint，支持 CORS 需正确配置) */
+async function searchBing(query){
+  const key = getSearchKey();
+  if(!key) throw new Error('未填写 Bing API Key');
+  const url = `https://api.bing.microsoft.com/v7.0/search?q=${encodeURIComponent(query)}&mkt=zh-CN&count=6&responseFilter=Webpages`;
+  const res = await fetchWithTimeout(url, 9000, {
+    headers: { 'Ocp-Apim-Subscription-Key': key }
+  });
+  if(!res.ok) throw new Error('Bing HTTP ' + res.status);
+  const data = await res.json();
+  const pages = data?.webPages?.value || [];
+  const results = [];
+  if(data?.webPages?.value?.length && data?.rankingResponse?.mainline){
+    // 可选：优先 answer
+  }
+  pages.forEach(p => {
+    results.push({ title: p.name, snippet: p.snippet || '', url: p.url });
+  });
+  return results.slice(0, 6);
+}
+
+/* 统一的搜索入口 */
+async function webSearch(query){
+  const provider = getSearchProvider();
+  try{
+    if(provider === 'wiki')   return { provider, results: await searchWikipedia(query) };
+    if(provider === 'serper') return { provider, results: await searchSerper(query) };
+    if(provider === 'bing')   return { provider, results: await searchBing(query) };
+    // 默认 ddg，失败时自动兜底 wiki
+    const r = await searchDDG(query);
+    if(r.length) return { provider: 'ddg', results: r };
+    return { provider: 'ddg', results: await searchWikipedia(query) };
+  }catch(err){
+    console.warn('[龙宝] 搜索失败：', err);
+    // 主源失败时尝试降级
+    try{
+      if(provider !== 'wiki'){
+        const r2 = await searchWikipedia(query);
+        if(r2.length) return { provider: 'wiki', results: r2 };
+      }
+    }catch(e){}
+    return { provider, results: [], error: String(err && err.message || err) };
+  }
+}
+
+/* 把搜索结果格式化为可注入 AI 的上下文 */
+function formatSearchContext(results){
+  if(!results || !results.length) return '';
+  const lines = ['【联网搜索结果】以下是来自互联网的实时信息，请基于这些内容回答用户问题：', ''];
+  results.forEach((r, i) => {
+    lines.push(`[${i+1}] ${r.title}`);
+    if(r.snippet) lines.push(`    ${r.snippet.replace(/\s+/g,' ').trim()}`);
+    if(r.url) lines.push(`    来源：${r.url}`);
+    lines.push('');
+  });
+  lines.push('要求：');
+  lines.push('- 用自然语言综合以上信息回答，不要直接复制粘贴。');
+  lines.push('- 涉及事实性内容要基于搜索结果，不要编造。');
+  lines.push('- 在回答末尾用"📖 参考："列出引用的来源编号和链接（最多 3 条）。');
+  lines.push('- 如果搜索结果与问题无关，可以说明没找到相关信息，然后基于你的知识回答。');
+  return lines.join('\n');
+}
+
 /* ==================== 知识库 ==================== */
 const KNOWLEDGE = `
 【服务器名称】龙之谷物语
-【服务器定位】Minecraft Java 版服务器，包含一服（插件服）和二服（模组服）
 【服务器地址】
 - 一服（插件服）：sp.longvalley.cn:32922
 - 二服（模组服·模拟大都市）：a6.minekuai.com:10300
@@ -772,174 +886,109 @@ const KNOWLEDGE = `
 【服务器规则】不允许任何形式的拆家、骂人、恶意 PVP 和组队等行为
 
 ===================== 一服（插件服）=====================
-【服务端】Purpur / Folia 26.1.2（Minecraft Java 版）
-【主要插件与机制】
-- 扫地姬：每 10 分钟清理一次掉落物和实体，会在 60 秒、30 秒、10 秒、5~1 秒倒计时提醒。清理后的物品会进入"公共垃圾桶"，每 3 次扫地后垃圾桶刷新一次。
-- 公共垃圾桶：可点击聊天栏提示打开，暂存被清理的物品。
-- SkinsRestorer：皮肤系统，可显示正版/自定义皮肤。
-- Vault：经济系统插件，支持 /balance 查看余额。
-- ViewSlimeChunk：史莱姆区块查看插件。
-
-【一服可用指令】
-- /tpa [玩家名称] —— 玩家互传（传送请求）
+【服务端】Purpur / Folia 26.1.2
+【插件与机制】
+- 扫地姬：每 10 分钟清理一次掉落物和实体，60/30/10/5~1 秒倒计时；物品进入公共垃圾桶，每 3 次扫地后刷新。
+- SkinsRestorer：皮肤系统
+- Vault：经济系统（/balance）
+- ViewSlimeChunk：史莱姆区块查看
+【一服指令】
+- /tpa [玩家名称] —— 玩家互传
 - /balance —— 查看剩余余额
-- 剩余功能可前往服务器菜单使用
-- 如果内容不足，欢迎各位进群补充
+- 其余功能在服务器菜单
 
 ===================== 二服（模组服·模拟大都市）=====================
-【服务端】NeoForge 21.1.248 · Minecraft 1.21.1（离线模式）
-【端口】10300
-【核心玩法】模拟大都市（New Sim-U-Kraft 2.2.0）——城市模拟经营
-【核心模组列表】
-- [新：模拟大都市] New-Sim-U-Kraft 2.2.0
-- Sim-U-Kraft: City Alliance（/alliance 城市联盟）
-- [通用机械] Mekanism + Generators + Tools
-- [农夫乐事] Farmer's Delight
-- [傻瓜烹饪/懒人厨房] Cooking for Blockheads
-- [汤姆的简易存储] Tom's Simple Storage
-- [安全工艺] SecurityCraft
-- [沉浸式飞机] Immersive Aircraft
-- [Xaero 的小地图/世界地图]
-- [热带世界] Tropicraft
-- [我们走过的生物群系] Oh The Biomes We've Gone
-- [Waystones]
-- [FTB Quests / Teams / Library]
-- [Macaw 的家具]
-- [龙咒异闻录] dcc + dcrapi
-- 以及其他前置/优化模组
-
-【二服·模拟大都市玩法要点】
-- 建造城市：先建"建材商店"，然后是农场、面包店、住宅等
-- 雇佣市民：建筑工、规划师、农民、商人、医生、矿物钻井工等
+【服务端】NeoForge 21.1.248 · Minecraft 1.21.1（离线模式），端口 10300
+【核心玩法】模拟大都市（New Sim-U-Kraft 2.2.0）城市模拟经营
+【核心模组】
+- 新·模拟大都市（New-Sim-U-Kraft 2.2.0）
+- Sim-U-Kraft: City Alliance（/alliance）
+- 通用机械 Mekanism + Generators + Tools
+- 农夫乐事 Farmer's Delight / 傻瓜烹饪 Cooking for Blockheads
+- 汤姆的简易存储 Tom's Simple Storage
+- 安全工艺 SecurityCraft / 沉浸式飞机 Immersive Aircraft
+- Xaero 小地图 / 世界地图 / 热带世界 Tropicraft
+- 我们走过的生物群系 / Waystones / FTB Quests / Macaw 家具
+- 龙咒异闻录 dcc + dcrapi
+【模拟大都市玩法】
+- 先建建材商店，再建农场、面包店、住宅
+- 雇佣市民：建筑工、规划师、农民、商人、医生、矿物钻井工
 - 市民有等级、寿命、饥饿、血量，需要吃饭和就医
-- 矿物钻井平台可采集矿物资源
-- 通过 /alliance 打开城市联盟菜单
-
-【二服常用指令】
+- 矿物钻井平台可采集矿物
+- /alliance 打开城市联盟
+【二服指令】
 - /alliance —— 打开城市联盟菜单
-- 大部分功能通过服务器菜单或模组 GUI 使用
-- 如果内容不足，欢迎各位进群补充
-
-===================== 通用 MC 知识 =====================
-当用户问及 MC 通用内容（合成、生物、附魔、红石、地形、结构、种子等），
-可基于 Minecraft Wiki（zh.minecraft.wiki / minecraft.wiki）和 MC 百科（mcmod.cn）的公开知识回答。
+- 其余通过服务器菜单或模组 GUI
 `;
 
 const SYSTEM_PROMPT_BASE = `你是「龙之谷物语」Minecraft 服务器的智能客服，名字叫「龙宝」，形象是一只热情的小火龙。
-说话风格：亲切、热情、简洁，适度使用 🔥🐉🌿 等 emoji，回答不要太长（一般 2~8 行）。
+说话风格：亲切、热情、简洁，适度使用 🔥🐉🌿 等 emoji。
 不要自己添加"喵~"，系统会统一在句尾补上，你只需要正常写内容即可。
 
-【重要】你的回答必须严格依据下面的知识库，绝对不要编造服务器地址、群号、指令或规则。
-如果知识库中没有，礼貌说明不清楚，并建议加群 1059442560 咨询管理。
+【重要】服务器地址、群号、指令、规则必须严格依据知识库，绝不编造。
 
 ===== 知识库 =====
 ${KNOWLEDGE}
 ==================
 
 【回答要求】
-1. 用户问服务器地址时，必须完整给出一服和二服的地址。
-2. 用户问 bug / 建议 / 反馈时，告诉对方加群 1059442560。
-3. 用户问玩法时，回答以生存、探索、建筑、养老为主。
-4. 用户问规则时，说明不允许拆家、骂人、恶意 PVP 和组队。
-5. 用户问一服指令/命令时，列出 /tpa [玩家名称]（玩家互传）、/balance（查看剩余余额），说明剩余功能可前往服务器菜单使用，并说明"如果内容不足，欢迎各位进群补充"。
-6. 用户问扫地姬/清理/垃圾桶时，说明每 10 分钟清理一次，有 60/30/10/5~1 秒倒计时，物品进入公共垃圾桶，每 3 次扫地后刷新。
-7. 用户问史莱姆区块/区块时，说明一服装有 ViewSlimeChunk 插件可查看史莱姆区块。
-8. 用户问二服模组/模拟大都市时，列出核心模组，并说明城市模拟经营玩法。
-9. 用户问二服指令时，说明 /alliance 打开城市联盟菜单，其余通过模组 GUI。
-10. 知识库中没有的服务器相关疑问，礼貌说明不清楚，并建议加群 1059442560。
-11. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。
+1. 用户问服务器地址：完整给出一服和二服地址。
+2. 用户问 bug / 建议 / 反馈：告诉对方加群 1059442560。
+3. 用户问玩法：回答以生存、探索、建筑、养老为主。
+4. 用户问规则：说明不允许拆家、骂人、恶意 PVP 和组队。
+5. 用户问一服指令：列出 /tpa [玩家名称]、/balance，说明其余在服务器菜单，并说明"如果内容不足，欢迎各位进群补充"。
+6. 用户问扫地姬：说明每 10 分钟清理，倒计时 60/30/10/5~1 秒，物品进公共垃圾桶，每 3 次刷新。
+7. 用户问史莱姆区块：说明一服装有 ViewSlimeChunk 插件。
+8. 用户问二服模组：列出核心模组，说明模拟大都市玩法。
+9. 用户问二服指令：说明 /alliance，其余通过模组 GUI。
+10. 全程保持「龙宝」人设，不要提及自己是 AI 模型。
 
 【在线人数】
-如果系统消息里提供了【实时服务器状态】数据，回答人数问题时必须严格使用该数据，
-不允许编造人数，也不要说"建议你自己进服看"。如果系统没有提供实时数据，就如实说明暂时查不到。`;
+如果系统消息里提供了【实时服务器状态】数据，必须严格使用该数据，不允许编造。
+如果系统没有提供实时数据，就如实说明暂时查不到。
 
-const WEB_SEARCH_ADDON = `
-
-【联网搜索扩展】
-用户已开启联网搜索。除服务器问题外，你也可以回答 MC 通用问题，
-例如：合成配方、生物习性、附魔机制、红石电路、地形结构、种子推荐、版本差异等。
-回答这类通用问题时：
-- 优先参考 Minecraft Wiki（zh.minecraft.wiki / minecraft.wiki）和 MC 百科（mcmod.cn）的知识。
-- 回答尽量准确、简洁，必要时给出出处名称（如"据 Minecraft Wiki"）。
-- 如果涉及版本差异，请先确认用户问的是哪个版本（如 1.21.1）。
-- 服务器内涉及的具体问题仍以知识库为准，不要与服务器设定冲突。`;
+【联网搜索结果】
+如果系统消息里提供了【联网搜索结果】，请基于这些搜索结果回答用户问题。
+- 涉及事实性内容要以搜索结果为准，不要编造。
+- 综合多条结果用自然语言回答，不要直接复制粘贴。
+- 在回答末尾用"📖 参考："列出引用的来源（最多 3 条，格式：标题 - 链接）。
+- 如果搜索结果与问题无关，如实说明，然后基于你的知识回答。
+- 服务器相关问题仍然以知识库为准，不要被搜索结果里的无关信息干扰。`;
 
 /* ==================== 本地关键词规则 ==================== */
 const RULES = [
-  /* —— 指令类 —— */
-  {
-    keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键','alliance','联盟'],
-    reply: '🕹️ 服务器常用指令：\n· 一服：**/tpa [玩家名称]** 玩家互传 · **/balance** 查看余额\n· 二服：**/alliance** 打开城市联盟菜单\n· 剩余功能可前往服务器菜单或模组 GUI 使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议'
-  },
-  /* —— 扫地姬 —— */
-  {
-    keys: ['扫地姬','扫地','清理','垃圾桶','掉落物','清除','刷新'],
-    reply: '🧹 **扫地姬** 每 10 分钟清理一次掉落物和实体：\n· 会提前 60 / 30 / 10 / 5~1 秒倒计时提醒\n· 清理后物品进入**公共垃圾桶**（点击聊天栏提示可打开）\n· 每 **3 次扫地**后公共垃圾桶刷新一次\n\n记得及时捡走重要物品哦～'
-  },
-  /* —— 史莱姆区块 —— */
-  {
-    keys: ['史莱姆区块','史莱姆','区块','chunk','slime'],
-    reply: '🟩 一服装有 **ViewSlimeChunk** 插件，可以用来查看**史莱姆区块**～\n在服务器菜单或插件命令里找到对应功能即可查看。\n\n💬 具体用法可以加群 **1059442560** 问管理'
-  },
-  /* —— 模组 / 模拟大都市 —— */
-  {
-    keys: ['模组','mod','模拟大都市','二服','2服','第二个服','simukraft','sim-u-kraft','mekanism','通用机械'],
-    reply: '🏙️ 二服（模组·模拟大都市）地址：**a6.minekuai.com:10300**\n\n核心模组：\n· **新·模拟大都市** —— 城市模拟经营\n· **通用机械 Mekanism** —— 工业科技\n· **农夫乐事 / 傻瓜烹饪** —— 农业烹饪\n· **汤姆的简易存储** —— 存储系统\n· 还有安全工艺、沉浸式飞机、热带世界、Waystones 等\n\n玩法：建建材商店 → 农场 → 住宅，雇佣市民，发展工业与商业～'
-  },
-  /* —— 模拟大都市玩法细节 —— */
-  {
-    keys: ['市民','村民','雇佣','医生','医院','诊所','吃饭','饿','寿命','等级','矿物钻井','钻井','农田','build_box'],
-    reply: '👥 **模拟大都市**玩法小贴士：\n· 先建 **建材商店**，否则很多建造都做不了\n· 市民需要吃饭（面包店/餐厅/肉铺）和就医（医院/诊所）\n· 市民有等级、寿命、饥饿值和血量\n· **矿物钻井平台**可以采集矿物资源\n· 多建"1单元"住宅会吸引新市民入住\n\n有疑问可以加群 **1059442560** 一起交流～'
-  },
-  /* —— bug / 反馈 —— */
-  {
-    keys: ['bug','反馈','建议','加群','群号','进群','扣群','q群','联系','管理','举报','投诉','意见','补充'],
-    reply: '🐉 遇到 bug 或者有建议，欢迎加群 **1059442560** 反馈！\n管理员看到会第一时间处理的～'
-  },
-  /* —— 地址 —— */
-  {
-    keys: ['地址','ip','端口','进服','连接','怎么进','如何进','进入','联机','加入','在哪玩','网址'],
-    reply: '🔥 龙之谷物语服务器地址：\n· 一服（插件服）：**sp.longvalley.cn:32922**\n· 二服（模组·模拟大都市）：**a6.minekuai.com:10300**\n\n进不去的话可以加群 **1059442560** 找管理帮忙～'
-  },
-  /* —— 规则 —— */
-  {
-    keys: ['规则','拆家','骂人','pvp','组队','禁止','违规','封号','惩罚','能不能打','打架'],
-    reply: '⚠️ 服务器**不允许**任何形式的以下行为：\n· 拆家\n· 骂人\n· 恶意 PVP\n· 恶意组队\n\n一起维护友好的氛围，违规会被处理哦～'
-  },
-  /* —— 玩法 —— */
-  {
-    keys: ['玩法','模式','内容','生存','探索','建筑','养老','做什么','有什么玩','肝'],
-    reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n一服偏原版生存，二服主打**模拟大都市**城市经营。\n想肝就肝，想躺就躺，总有一款适合你！'
-  },
-  /* —— 版本 —— */
-  {
-    keys: ['版本','服务端','purpur','folia','neoforge','forge','1.21','1.20'],
-    reply: '📦 服务器版本信息：\n· 一服：**Purpur / Folia**（插件服，原版生存）\n· 二服：**NeoForge 21.1.248 · Minecraft 1.21.1**（模组服）\n\n进服前请确认客户端版本匹配～'
-  },
-  /* —— 皮肤 —— */
-  {
-    keys: ['皮肤','skin','skinsrestorer','正版'],
-    reply: '👕 一服装有 **SkinsRestorer** 插件，可以显示正版或自定义皮肤～\n具体用法可以加群 **1059442560** 问管理。'
-  },
-  /* —— 你好 —— */
-  {
-    keys: ['你好','您好','hi','hello','在吗','嗨','哈喽','你是谁','介绍下自己'],
-    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、在线人数、一服指令、扫地姬、史莱姆区块、二服模组、模拟大都市玩法、服务器规则，或者加群反馈问题！'
-  },
-  /* —— 帮助 —— */
-  {
-    keys: ['帮助','能做什么','会什么','怎么用','使用说明'],
-    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n👥 实时在线人数\n🌿 玩法介绍\n🕹️ 一服指令 · 扫地姬 · 史莱姆区块\n🏙️ 二服模组 / 模拟大都市玩法\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
-  },
-  /* —— 服务器宽泛 —— */
-  {
-    keys: ['服务器','开服','什么时候开','几个服'],
-    reply: '🔥 龙之谷物语目前有两个服：\n· 一服：**sp.longvalley.cn:32922**（插件服 · 原版生存）\n· 二服：**a6.minekuai.com:10300**（模组服 · 模拟大都市）\n\n玩法以生存、探索、建筑、养老为主～\n有问题可以加群 **1059442560** 反馈！'
-  }
+  { keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键','alliance','联盟'],
+    reply: '🕹️ 服务器常用指令：\n· 一服：**/tpa [玩家名称]** 玩家互传 · **/balance** 查看余额\n· 二服：**/alliance** 打开城市联盟菜单\n· 剩余功能可前往服务器菜单或模组 GUI 使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议' },
+  { keys: ['扫地姬','扫地','清理','垃圾桶','掉落物','清除','刷新'],
+    reply: '🧹 **扫地姬** 每 10 分钟清理一次掉落物和实体：\n· 会提前 60 / 30 / 10 / 5~1 秒倒计时提醒\n· 清理后物品进入**公共垃圾桶**（点击聊天栏提示可打开）\n· 每 **3 次扫地**后公共垃圾桶刷新一次\n\n记得及时捡走重要物品哦～' },
+  { keys: ['史莱姆区块','史莱姆','区块','chunk','slime'],
+    reply: '🟩 一服装有 **ViewSlimeChunk** 插件，可以用来查看**史莱姆区块**～\n在服务器菜单或插件命令里找到对应功能即可查看。\n\n💬 具体用法可以加群 **1059442560** 问管理' },
+  { keys: ['模组','mod','模拟大都市','二服','2服','第二个服','simukraft','sim-u-kraft','mekanism','通用机械'],
+    reply: '🏙️ 二服（模组·模拟大都市）地址：**a6.minekuai.com:10300**\n\n核心模组：\n· **新·模拟大都市** —— 城市模拟经营\n· **通用机械 Mekanism** —— 工业科技\n· **农夫乐事 / 傻瓜烹饪** —— 农业烹饪\n· **汤姆的简易存储** —— 存储系统\n· 还有安全工艺、沉浸式飞机、热带世界、Waystones 等\n\n玩法：建建材商店 → 农场 → 住宅，雇佣市民，发展工业与商业～' },
+  { keys: ['市民','村民','雇佣','医生','医院','诊所','吃饭','饿','寿命','等级','矿物钻井','钻井','农田'],
+    reply: '👥 **模拟大都市**玩法小贴士：\n· 先建 **建材商店**，否则很多建造都做不了\n· 市民需要吃饭（面包店/餐厅/肉铺）和就医（医院/诊所）\n· 市民有等级、寿命、饥饿值和血量\n· **矿物钻井平台**可以采集矿物资源\n· 多建"1单元"住宅会吸引新市民入住\n\n有疑问可以加群 **1059442560** 一起交流～' },
+  { keys: ['bug','反馈','建议','加群','群号','进群','扣群','q群','联系','管理','举报','投诉','意见','补充'],
+    reply: '🐉 遇到 bug 或者有建议，欢迎加群 **1059442560** 反馈！\n管理员看到会第一时间处理的～' },
+  { keys: ['地址','ip','端口','进服','连接','怎么进','如何进','进入','联机','加入','在哪玩','网址'],
+    reply: '🔥 龙之谷物语服务器地址：\n· 一服（插件服）：**sp.longvalley.cn:32922**\n· 二服（模组·模拟大都市）：**a6.minekuai.com:10300**\n\n进不去的话可以加群 **1059442560** 找管理帮忙～' },
+  { keys: ['规则','拆家','骂人','pvp','组队','禁止','违规','封号','惩罚','能不能打','打架'],
+    reply: '⚠️ 服务器**不允许**任何形式的以下行为：\n· 拆家\n· 骂人\n· 恶意 PVP\n· 恶意组队\n\n一起维护友好的氛围，违规会被处理哦～' },
+  { keys: ['玩法','模式','内容','生存','探索','建筑','养老','做什么','有什么玩','肝'],
+    reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n一服偏原版生存，二服主打**模拟大都市**城市经营。\n想肝就肝，想躺就躺，总有一款适合你！' },
+  { keys: ['版本','服务端','purpur','folia','neoforge','forge','1.21','1.20'],
+    reply: '📦 服务器版本信息：\n· 一服：**Purpur / Folia**（插件服，原版生存）\n· 二服：**NeoForge 21.1.248 · Minecraft 1.21.1**（模组服）\n\n进服前请确认客户端版本匹配～' },
+  { keys: ['皮肤','skin','skinsrestorer','正版'],
+    reply: '👕 一服装有 **SkinsRestorer** 插件，可以显示正版或自定义皮肤～\n具体用法可以加群 **1059442560** 问管理。' },
+  { keys: ['你好','您好','hi','hello','在吗','嗨','哈喽','你是谁','介绍下自己'],
+    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、在线人数、一服指令、扫地姬、史莱姆区块、二服模组、模拟大都市玩法、服务器规则，或者加群反馈问题！\n\n开启联网搜索后，还能回答 MC 合成、生物、附魔等通用问题哦～' },
+  { keys: ['帮助','能做什么','会什么','怎么用','使用说明'],
+    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n👥 实时在线人数\n🌿 玩法介绍\n🕹️ 一服指令 · 扫地姬 · 史莱姆区块\n🏙️ 二服模组 / 模拟大都市玩法\n📜 服务器规则\n🌐 MC 通用问题（开启联网搜索后）\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！' },
+  { keys: ['服务器','开服','什么时候开','几个服'],
+    reply: '🔥 龙之谷物语目前有两个服：\n· 一服：**sp.longvalley.cn:32922**（插件服 · 原版生存）\n· 二服：**a6.minekuai.com:10300**（模组服 · 模拟大都市）\n\n玩法以生存、探索、建筑、养老为主～\n有问题可以加群 **1059442560** 反馈！' }
 ];
 
 const FALLBACK =
-  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 在线人数 / 玩法 / 一服指令 / 扫地姬 / 史莱姆区块 / 二服模组 / 模拟大都市玩法 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
+  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 在线人数 / 玩法 / 一服指令 / 扫地姬 / 史莱姆区块 / 二服模组 / 模拟大都市玩法 / 服务器规则**。\n或者开启**联网搜索**后，还能问 MC 合成、生物、附魔等通用问题哦～\n也可以加群 **1059442560** 直接问管理。';
 
 function localReply(text){
   const t = text.toLowerCase();
@@ -949,45 +998,48 @@ function localReply(text){
   return FALLBACK;
 }
 
-/* ==================== 在线人数意图识别 ==================== */
+/* ==================== 在线人数识别 ==================== */
 function isAskingPlayers(text){
   const t = (text || '').toLowerCase();
-
-  // 直接短语
   const direct = [
     '在线人数','多少人','几个人','几个人在','多少人玩','在线玩家','玩家数量',
     '有人在吗','有人吗','谁在线','谁在服','服里人','服务器人多','服务器人少',
-    '多少玩家','几个玩家','玩家数','当前人数','现在多少人','多少人玩','在线多少',
+    '多少玩家','几个玩家','玩家数','当前人数','现在多少人','在线多少',
     '人数','满人','满了','人多吗','人少吗','有人玩','有空位','空位'
   ];
   if(direct.some(k => t.includes(k))) return true;
-
-  // 组合判断："人 / 玩家" + 询问词
   const hasSubject = /人|玩家/.test(t);
   const hasAsk = /多少|几个|几点|在线|在玩|有谁|谁在|人多|人少|满了|空|满/.test(t);
   return hasSubject && hasAsk;
 }
 
+/* ==================== 需要联网搜索的意图判断 ==================== */
+/* 服务器相关问题不需要联网搜索，直接走知识库；其他 MC 问题、通用问题才搜索 */
+function isServerRelated(text){
+  const t = (text || '').toLowerCase();
+  const kws = [
+    '服务器','一服','二服','龙之谷','longvalley','minekuai','sp.longvalley','a6.minekuai',
+    '指令','tpa','balance','alliance','扫地姬','垃圾桶','史莱姆区块','viewslimechunk',
+    '模拟大都市','simukraft','sim-u-kraft','群号','加群','1059442560','进服','联机',
+    '模组服','插件服','规则','拆家','骂人','pvp','组队','在线人数','多少人','几个人',
+    '服主','腐竹','管理','bug','反馈','建议','玩法','养老','建筑','生存'
+  ];
+  return kws.some(k => t.includes(k));
+}
+
 /* ==================== 喵~ 句尾处理 ==================== */
 const PUNCT = '。！？!?；;…';
-
 function miaoLine(line){
   const t = line.replace(/\s+$/,'');
   if(!t) return line;
   if(/[：:,，、]$/.test(t)) return t;
-
   const parts = [];
   let buf = '';
   for(const ch of t){
-    if(PUNCT.includes(ch)){
-      parts.push({ text: buf, punct: ch });
-      buf = '';
-    }else{
-      buf += ch;
-    }
+    if(PUNCT.includes(ch)){ parts.push({ text: buf, punct: ch }); buf = ''; }
+    else buf += ch;
   }
   if(buf) parts.push({ text: buf, punct: '' });
-
   return parts.map(p => {
     const core = p.text;
     if(!core.trim()) return p.punct;
@@ -995,7 +1047,6 @@ function miaoLine(line){
     return core + '喵~' + p.punct;
   }).join('');
 }
-
 function addMiao(text){
   if(!text) return text;
   return String(text).split('\n').map(miaoLine).join('\n');
@@ -1011,19 +1062,20 @@ const modalMask  = document.getElementById('modalMask');
 const toastEl    = document.getElementById('toast');
 const statusText = document.getElementById('statusText');
 
-/* ==================== 工具函数 ==================== */
+/* ==================== 工具 ==================== */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
+/* 支持 **粗体** 和 [文本](链接) 和 纯 URL 自动链接 */
 function format(s){
-  return escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-}
-function stripMd(s){
-  return String(s || '').replace(/\*\*/g, '');
+  let h = escapeHtml(s);
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  h = h.replace(/(^|[\s（(])(https?:\/\/[^\s<）)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  return h;
 }
 function scrollToBottom(){
   requestAnimationFrame(() => { chatScroll.scrollTop = chatScroll.scrollHeight; });
@@ -1037,34 +1089,48 @@ function toast(msg){
 }
 
 /* ==================== 消息渲染 ==================== */
-function addMessage(role, text){
+function addMessage(role, text, sources){
   const wrap = document.createElement('div');
   wrap.className = 'msg ' + role;
-
   const avatarHtml = role === 'bot'
     ? `<div class="mini-avatar">
          <img src="ai.webp" alt=""
               onerror="this.parentElement.classList.add('fallback');this.remove();">
        </div>`
     : '';
-
   const content = role === 'bot' ? addMiao(text) : text;
 
-  wrap.innerHTML = avatarHtml + `<div class="bubble">${format(content)}</div>`;
+  let sourcesHtml = '';
+  if(role === 'bot' && Array.isArray(sources) && sources.length){
+    const seen = new Set();
+    const items = [];
+    sources.forEach(s => {
+      if(!s.url || seen.has(s.url)) return;
+      seen.add(s.url);
+      const domain = (() => { try { return new URL(s.url).hostname.replace(/^www\./,''); } catch(e){ return s.url.slice(0,40); } })();
+      items.push(`<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" title="${escapeHtml(s.title||'')}">🌐 ${escapeHtml(domain)}</a>`);
+      if(items.length >= 3) return;
+    });
+    if(items.length){
+      sourcesHtml = `<span class="search-source"><span class="search-source-title">📖 参考来源：</span>${items.join('')}</span>`;
+    }
+  }
+
+  wrap.innerHTML = avatarHtml + `<div class="bubble">${format(content)}${sourcesHtml}</div>`;
   messagesEl.appendChild(wrap);
   scrollToBottom();
   return wrap;
 }
-
-function showTyping(){
+function showTyping(tipText){
   const el = document.createElement('div');
   el.className = 'msg bot';
+  const tip = tipText ? `<div style="font-size:12px;color:#d18a68;margin-bottom:6px;">${escapeHtml(tipText)}</div>` : '';
   el.innerHTML = `
     <div class="mini-avatar">
       <img src="ai.webp" alt=""
            onerror="this.parentElement.classList.add('fallback');this.remove();">
     </div>
-    <div class="bubble typing"><i></i><i></i><i></i></div>`;
+    <div class="bubble typing">${tip}<i></i><i></i><i></i></div>`;
   messagesEl.appendChild(el);
   scrollToBottom();
   return el;
@@ -1075,13 +1141,12 @@ function getKey(){ return (localStorage.getItem(KEY_STORE) || '').trim(); }
 function isSearchOn(){ return localStorage.getItem(SEARCH_STORE) === '1'; }
 
 function buildSystemPrompt(extraSystem){
-  return SYSTEM_PROMPT_BASE + (isSearchOn() ? WEB_SEARCH_ADDON : '') + (extraSystem ? '\n\n' + extraSystem : '');
+  return SYSTEM_PROMPT_BASE + (extraSystem ? '\n\n' + extraSystem : '');
 }
 
 async function askDeepSeek(history, extraSystem){
   const key = getKey();
   if(!key) return null;
-
   const base  = (localStorage.getItem(BASE_STORE) || DEFAULT_BASE).trim().replace(/\/+$/, '');
   const model = (localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
 
@@ -1094,12 +1159,11 @@ async function askDeepSeek(history, extraSystem){
     body: JSON.stringify({
       model,
       messages: [{ role:'system', content: buildSystemPrompt(extraSystem) }, ...history],
-      temperature: 0.65,
-      max_tokens: 900,
+      temperature: 0.6,
+      max_tokens: 1100,
       stream: false
     })
   });
-
   if(!res.ok){
     const txt = await res.text().catch(() => '');
     throw new Error('HTTP ' + res.status + ' ' + txt.slice(0, 160));
@@ -1119,65 +1183,90 @@ async function handleSend(raw){
 
   busy = true;
   sendBtn.disabled = true;
-
   addMessage('user', text);
   history.push({ role:'user', content: text });
   if(history.length > 16) history = history.slice(-16);
 
-  const typing = showTyping();
-  await sleep(300);
-
-  /* 1) 判断是否在问在线人数 → 先查实时状态 */
-  let statusList = null;
+  /* 1) 先判断是否问人数 */
   const askingPlayers = isAskingPlayers(text);
-
+  let statusList = null;
   if(askingPlayers){
+    const t1 = showTyping('正在查询服务器状态…');
+    await sleep(180);
     try{
-      statusList = await queryAllServers(false);   // 使用缓存，避免频繁请求
-      // 同步更新顶部状态栏
+      statusList = await queryAllServers(false);
       refreshLiveBar(false);
     }catch(e){
       console.warn('[龙宝] 状态查询失败：', e);
     }
+    t1.remove();
   }
 
-  /* 2) 生成回答 */
-  let reply = null;
-
-  // 2a) 有 API Key 且问人数：把实时数据注入系统提示，让 AI 用自然语言回答
-  if(askingPlayers && statusList && getKey()){
-    const statusBlock = '【实时服务器状态】\n' + stripMd(formatStatusText(statusList));
-    try{
-      reply = await askDeepSeek(history, statusBlock);
-    }catch(err){
-      console.warn('[龙宝] DeepSeek 调用失败：', err);
-      toast('DeepSeek 接口调用失败，已切换为本地回答');
+  /* 2) 判断是否需要联网搜索 */
+  let searchPayload = null;
+  const wantSearch = isSearchOn() && getKey() && !askingPlayers;
+  if(wantSearch){
+    // 服务器相关问题不搜索；其他问题都搜（尤其是 MC 通用问题）
+    const shouldSearch = !isServerRelated(text) || /wiki|合成|配方|附魔|红石|生物|地形|种子|结构|命令方块|刷怪|繁殖|转化|酿造|药水|机制|怎么做|怎么获得|怎么打|怎么合成/i.test(text);
+    if(shouldSearch){
+      const t2 = showTyping('正在联网搜索…');
+      await sleep(150);
+      try{
+        searchPayload = await webSearch(text);
+      }catch(e){
+        console.warn('[龙宝] 搜索失败：', e);
+      }
+      t2.remove();
     }
   }
 
-  // 2b) 没有 API Key 但问人数：直接返回格式化后的实时数据
-  if(!reply && askingPlayers && statusList){
-    reply = formatStatusText(statusList);
+  /* 3) 生成回答 */
+  const typing = showTyping();
+  await sleep(220);
+
+  let reply = null;
+  let sources = [];
+
+  // 3a) 人数问题：优先用实时数据 + AI 润色
+  if(askingPlayers && statusList){
+    if(getKey()){
+      const statusBlock = '【实时服务器状态】\n' + formatStatusText(statusList).replace(/\*\*/g,'');
+      try{
+        reply = await askDeepSeek(history, statusBlock);
+      }catch(err){
+        console.warn('[龙宝] DeepSeek 调用失败：', err);
+      }
+    }
+    if(!reply) reply = formatStatusText(statusList);
   }
 
-  // 2c) 一般问题：走 API
+  // 3b) 普通问题：有搜索结果就注入，否则纯 AI
   if(!reply && getKey()){
+    let extra = '';
+    if(searchPayload && searchPayload.results && searchPayload.results.length){
+      extra = formatSearchContext(searchPayload.results);
+      sources = searchPayload.results;
+    }
     try{
-      reply = await askDeepSeek(history);
+      reply = await askDeepSeek(history, extra);
     }catch(err){
       console.warn('[龙宝] DeepSeek 调用失败：', err);
       toast('DeepSeek 接口调用失败，已切换为本地知识库回答');
     }
+    // 如果搜索失败，但在提示里告诉用户
+    if(searchPayload && searchPayload.error && !reply){
+      // 继续走兜底
+    }
   }
 
-  // 2d) 兜底：本地关键词规则
+  // 3c) 兜底：本地知识库
   if(!reply){
-    await sleep(360);
+    await sleep(340);
     reply = localReply(text);
   }
 
   typing.remove();
-  addMessage('bot', reply);
+  addMessage('bot', reply, sources);
   history.push({ role:'assistant', content: reply });
   if(history.length > 16) history = history.slice(-16);
 
@@ -1186,13 +1275,12 @@ async function handleSend(raw){
   if(window.matchMedia('(min-width: 641px)').matches) inputEl.focus();
 }
 
-/* ==================== 事件绑定 ==================== */
+/* ==================== 事件 ==================== */
 sendBtn.addEventListener('click', () => {
   const v = inputEl.value;
   inputEl.value = '';
   handleSend(v);
 });
-
 inputEl.addEventListener('keydown', e => {
   if(e.key === 'Enter' && !e.shiftKey && !e.isComposing){
     e.preventDefault();
@@ -1210,8 +1298,8 @@ const QUICK_LIST = [
   '扫地姬多久清理一次？',
   '二服有哪些模组？',
   '模拟大都市怎么玩？',
-  '服务器规则是什么？',
-  '群号是多少？'
+  'MC 1.21 钻石怎么找？',
+  '附魔台怎么摆才30级？'
 ];
 QUICK_LIST.forEach(q => {
   const chip = document.createElement('button');
@@ -1227,11 +1315,46 @@ const baseUrlInput    = document.getElementById('baseUrlInput');
 const modelInput      = document.getElementById('modelInput');
 const webSearchToggle = document.getElementById('webSearchToggle');
 const statusApiInput  = document.getElementById('statusApiInput');
+const searchKeyInput  = document.getElementById('searchKeyInput');
+const searchKeyLabel  = document.getElementById('searchKeyLabel');
+const searchHint      = document.getElementById('searchHint');
+const searchTabs      = document.getElementById('searchTabs');
+
+const PROVIDER_META = {
+  ddg:    { name:'DuckDuckGo', needKey:false, hint:'DuckDuckGo 免费、无需 Key、支持跨域，开箱即用。结果偏英文摘要，适合通用问题。' },
+  wiki:   { name:'Wikipedia', needKey:false, hint:'Wikipedia 免费、无需 Key、支持跨域。中文优先，适合查百科词条、概念解释。' },
+  serper: { name:'Serper (Google)', needKey:true,  hint:'Serper.dev 提供 Google 搜索结果，需要 API Key（有免费额度）。质量最好，推荐。' },
+  bing:   { name:'Bing Web Search', needKey:true,  hint:'Bing Web Search API 需要 Azure 订阅 Key。注意可能受 CORS 限制，如失败请改用 Serper。' }
+};
+
+function applyProviderUI(provider){
+  // 标签激活
+  Array.from(searchTabs.children).forEach(t => {
+    t.classList.toggle('active', t.dataset.provider === provider);
+  });
+  const meta = PROVIDER_META[provider] || PROVIDER_META.ddg;
+  searchHint.textContent = meta.hint;
+  if(meta.needKey){
+    searchKeyLabel.style.display = 'block';
+    searchKeyInput.style.display = 'block';
+    searchKeyInput.placeholder = provider === 'serper' ? 'Serper API Key' : 'Bing Subscription Key';
+  } else {
+    searchKeyLabel.style.display = 'none';
+    searchKeyInput.style.display = 'none';
+    searchKeyInput.value = '';
+  }
+}
+
+searchTabs.addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  applyProviderUI(btn.dataset.provider);
+});
 
 function refreshStatus(){
   const hasKey = !!getKey();
   const search = isSearchOn();
-  if(hasKey && search) statusText.textContent = '龙宝 · DeepSeek + 联网';
+  if(hasKey && search) statusText.textContent = '龙宝 · DeepSeek + 联网搜索';
   else if(hasKey)      statusText.textContent = '龙宝 · DeepSeek 已连接';
   else                 statusText.textContent = '龙宝 · 在线（本地知识库）';
 }
@@ -1242,6 +1365,9 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
   modelInput.value   = localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL;
   webSearchToggle.checked = isSearchOn();
   statusApiInput.value = localStorage.getItem(STATUS_STORE) || '';
+  const provider = getSearchProvider();
+  applyProviderUI(provider);
+  searchKeyInput.value = localStorage.getItem(SEARCHKEY_STORE) || '';
   modalMask.classList.add('open');
 });
 
@@ -1255,24 +1381,29 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const m = modelInput.value.trim() || DEFAULT_MODEL;
   const s = webSearchToggle.checked;
   const sa = statusApiInput.value.trim();
+  const provider = (searchTabs.querySelector('.tab.active')?.dataset.provider) || DEFAULT_PROVIDER;
+  const sk = searchKeyInput.value.trim();
 
   if(k){
     localStorage.setItem(KEY_STORE, k);
-    toast(s ? '✅ 已保存，龙宝已接入 DeepSeek 并开启联网搜索' : '✅ 已保存，龙宝已接入 DeepSeek');
-  }else{
+    toast(s ? '✅ 已保存：DeepSeek + 联网搜索' : '✅ 已保存：DeepSeek');
+  } else {
     localStorage.removeItem(KEY_STORE);
     toast('已清空 API Key，使用本地知识库回答');
   }
   localStorage.setItem(BASE_STORE, b);
   localStorage.setItem(MODEL_STORE, m);
   localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
+  localStorage.setItem(PROVIDER_STORE, provider);
+  if(sk) localStorage.setItem(SEARCHKEY_STORE, sk);
+  else   localStorage.removeItem(SEARCHKEY_STORE);
 
   if(sa) localStorage.setItem(STATUS_STORE, sa);
   else   localStorage.removeItem(STATUS_STORE);
 
   refreshStatus();
   modalMask.classList.remove('open');
-  refreshLiveBar(true);   // 状态 API 可能变了，强制刷新
+  refreshLiveBar(true);
 });
 
 document.getElementById('clearKeyBtn').addEventListener('click', () => {
@@ -1282,7 +1413,7 @@ document.getElementById('clearKeyBtn').addEventListener('click', () => {
   toast('已清空 API Key');
 });
 
-/* ==================== 状态栏刷新按钮 ==================== */
+/* 状态栏刷新按钮 */
 document.getElementById('liveRefresh').addEventListener('click', () => {
   refreshLiveBar(true);
   toast('已刷新服务器状态');
@@ -1291,13 +1422,9 @@ document.getElementById('liveRefresh').addEventListener('click', () => {
 /* ==================== 初始化 ==================== */
 (function init(){
   refreshStatus();
-
-  // 首屏拉一次实时状态
   refreshLiveBar(false);
-  // 每 60 秒自动刷新一次状态栏
   setInterval(() => refreshLiveBar(true), 60 * 1000);
 
-  // 欢迎语
   setTimeout(() => {
     addMessage('bot',
       '🐉🔥 你好呀，我是**龙宝**，龙之谷物语的智能客服！\n\n' +
@@ -1310,7 +1437,7 @@ document.getElementById('liveRefresh').addEventListener('click', () => {
       '· 🏙️ 二服模组 / 模拟大都市玩法\n' +
       '· 📜 服务器规则\n' +
       '· 💬 加群反馈 bug 或建议\n\n' +
-      '接入 DeepSeek 并开启联网后，还能回答更多 MC 通用问题哦～'
+      '在设置里填写 API Key 并**开启联网搜索**后，还能回答 MC 合成、生物、附魔、红石等通用问题，并附上参考来源～'
     );
   }, 420);
 
