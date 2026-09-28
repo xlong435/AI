@@ -34,41 +34,31 @@ body{
   overscroll-behavior:none;
 }
 
-/* ===== 背景火光 ===== */
-.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-.bg::before{
-  content:"";position:absolute;inset:-20%;
-  background:
-    radial-gradient(circle at 15% 105%, rgba(255,60,0,.45), transparent 52%),
-    radial-gradient(circle at 85% 95%, rgba(255,140,0,.28), transparent 48%),
-    radial-gradient(circle at 50% -10%, rgba(150,25,0,.5), transparent 60%);
-  animation:pulseGlow 9s ease-in-out infinite alternate;
+/* ===== 背景视频 ===== */
+.bg{
+  position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  background:var(--bg0); /* 视频未加载时的兜底底色 */
 }
-.bg::after{
-  content:"";position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(255,110,40,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,110,40,.045) 1px, transparent 1px);
-  background-size:44px 44px;
-  mask-image:radial-gradient(circle at 50% 40%, #000 10%, transparent 78%);
-  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 10%, transparent 78%);
-}
-@keyframes pulseGlow{
-  from{opacity:.75;transform:scale(1);}
-  to{opacity:1;transform:scale(1.06);}
-}
-.embers{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none;}
-.embers i{
-  position:absolute;bottom:-24px;border-radius:50%;
-  background:radial-gradient(circle,#ffe08a 0%,#ff8a1e 45%,rgba(255,60,0,0) 72%);
-  animation:floatUp linear infinite;
+.bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
   opacity:0;
+  transition:opacity 1.2s ease-in-out;
+  will-change:opacity;
+  pointer-events:none;
+  background:transparent;
 }
-@keyframes floatUp{
-  0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}
-  12%{opacity:.85;}
-  80%{opacity:.5;}
-  100%{transform:translateY(-112vh) translateX(var(--dx,30px)) scale(.25);opacity:0;}
+/* 视频上方一层薄薄的暗色渐晕，让前景更清晰 */
+.bg::after{
+  content:"";
+  position:absolute;inset:0;z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(6,1,0,.55) 100%),
+    linear-gradient(180deg, rgba(6,1,0,.25) 0%, transparent 22%, transparent 70%, rgba(6,1,0,.55) 100%);
 }
 
 /* ===== 布局 ===== */
@@ -112,12 +102,14 @@ body{
   -webkit-background-clip:text;background-clip:text;color:transparent;
   animation:shine 4.5s linear infinite;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
 }
 @keyframes shine{to{background-position:200% center;}}
 .status{
   margin:3px 0 0;font-size:12px;color:var(--muted);
   display:flex;align-items:center;gap:6px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 6px rgba(0,0,0,.7);
 }
 .dot{
   width:7px;height:7px;border-radius:50%;background:#4ade80;
@@ -127,20 +119,22 @@ body{
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
 .icon-btn{
   flex:0 0 auto;width:40px;height:40px;border-radius:12px;cursor:pointer;
-  background:rgba(255,90,20,.09);border:1px solid var(--border);
+  background:rgba(255,90,20,.14);border:1px solid var(--border);
   color:#ffb88e;font-size:17px;transition:.22s;
   display:grid;place-items:center;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-.icon-btn:hover{background:rgba(255,90,20,.22);color:#fff;transform:rotate(35deg);}
+.icon-btn:hover{background:rgba(255,90,20,.3);color:#fff;transform:rotate(35deg);}
 
 /* ===== 滚动公告 ===== */
 .ticker{
   overflow:hidden;white-space:nowrap;flex:0 0 auto;
   border-bottom:1px solid rgba(255,120,40,.12);
-  background:linear-gradient(90deg,rgba(255,60,0,.1),rgba(255,120,0,.04),rgba(255,60,0,.1));
+  background:linear-gradient(90deg,rgba(30,6,0,.65),rgba(30,6,0,.35),rgba(30,6,0,.65));
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
 .ticker-track{display:flex;width:max-content;animation:marquee 34s linear infinite;}
-.ticker-track span{padding:7px 0;font-size:12.5px;color:#e79b78;letter-spacing:.3px;}
+.ticker-track span{padding:7px 0;font-size:12.5px;color:#f0a986;letter-spacing:.3px;}
 .ticker-track span::after{content:"　";}
 @keyframes marquee{to{transform:translateX(-50%);}}
 
@@ -178,9 +172,10 @@ body{
   word-break:break-word;overflow-wrap:anywhere;
 }
 .msg.bot .bubble{
-  background:linear-gradient(150deg,rgba(255,70,10,.16),rgba(255,140,30,.07));
+  background:linear-gradient(150deg,rgba(60,14,3,.78),rgba(40,8,2,.68));
   border:1px solid var(--border);border-top-left-radius:5px;
-  box-shadow:0 4px 20px rgba(255,50,0,.1);
+  box-shadow:0 4px 20px rgba(255,50,0,.14);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .msg.user .bubble{
   background:linear-gradient(135deg,#ff7a18,#ff2d00);
@@ -210,11 +205,12 @@ body{
 .chip{
   flex:0 0 auto;padding:8px 15px;border-radius:999px;font-size:13px;
   cursor:pointer;white-space:nowrap;transition:.2s;
-  background:rgba(255,90,20,.08);border:1px solid rgba(255,120,40,.28);
+  background:rgba(40,10,2,.6);border:1px solid rgba(255,120,40,.35);
   color:#ffcbb0;font-family:inherit;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .chip:hover{
-  background:rgba(255,90,20,.22);border-color:#ff7a18;color:#fff;
+  background:rgba(255,90,20,.3);border-color:#ff7a18;color:#fff;
   transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,60,0,.25);
 }
 .chip:active{transform:translateY(0) scale(.97);}
@@ -223,15 +219,16 @@ body{
 .input-bar{display:flex;gap:10px;padding:4px 0 18px;flex:0 0 auto;}
 .input-bar input{
   flex:1;min-width:0;padding:14px 18px;border-radius:14px;font-size:15px;
-  background:rgba(255,90,20,.07);
-  border:1px solid rgba(255,120,40,.3);
+  background:rgba(40,10,2,.6);
+  border:1px solid rgba(255,120,40,.35);
   color:var(--text);outline:none;transition:.25s;
   font-family:inherit;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
-.input-bar input::placeholder{color:#a86a55;}
+.input-bar input::placeholder{color:#b87a63;}
 .input-bar input:focus{
-  border-color:#ff7a18;background:rgba(255,90,20,.13);
-  box-shadow:0 0 0 3px rgba(255,90,20,.14), 0 0 26px rgba(255,60,0,.22);
+  border-color:#ff7a18;background:rgba(60,15,3,.72);
+  box-shadow:0 0 0 3px rgba(255,90,20,.18), 0 0 26px rgba(255,60,0,.28);
 }
 #sendBtn{
   flex:0 0 auto;padding:0 26px;border:none;border-radius:14px;cursor:pointer;
@@ -358,8 +355,13 @@ body{
 </head>
 <body>
 
-<div class="bg"></div>
-<div class="embers" id="embers"></div>
+<!-- 背景视频：双视频交叉叠化，无缝循环 -->
+<div class="bg">
+  <video class="bg-video" id="vidA" src="background.mp4"
+         muted playsinline webkit-playsinline preload="auto" disablepictureinpicture></video>
+  <video class="bg-video" id="vidB" src="background.mp4"
+         muted playsinline webkit-playsinline preload="auto" disablepictureinpicture></video>
+</div>
 
 <div class="app">
   <!-- 顶栏 -->
@@ -438,6 +440,100 @@ body{
 <div class="toast" id="toast"></div>
 
 <script>
+/* ==================== 背景视频：叠化循环 ==================== */
+(function initVideoBg(){
+  const vidA = document.getElementById('vidA');
+  const vidB = document.getElementById('vidB');
+  const FADE_MS = 1200;              // 叠化时长（要和 CSS transition 一致）
+  const FADE_S  = FADE_MS / 1000;
+
+  let active = vidA;                 // 当前正在播放的视频
+  let standby = vidB;                // 待命视频
+  let switching = false;             // 是否正在叠化
+  let started = false;
+
+  function resetVideo(v){
+    try{
+      v.pause();
+      v.currentTime = 0;
+    }catch(e){}
+    v.style.opacity = '0';
+  }
+
+  function beginPlayback(){
+    if(started) return;
+    started = true;
+    resetVideo(standby);
+    active.style.opacity = '1';
+    const p = active.play();
+    if(p && p.catch) p.catch(()=>{});
+    requestAnimationFrame(tick);
+  }
+
+  // 执行交叉叠化：待命视频从 0 开始播放并淡入，当前视频淡出
+  function crossfade(){
+    if(switching) return;
+    switching = true;
+
+    try{ standby.currentTime = 0; }catch(e){}
+    const p = standby.play();
+    if(p && p.catch) p.catch(()=>{});
+
+    // 下一帧再改透明度，确保 transition 能触发
+    requestAnimationFrame(() => {
+      standby.style.opacity = '1';
+      active.style.opacity = '0';
+    });
+
+    const oldActive = active;
+
+    setTimeout(() => {
+      active = standby;
+      standby = oldActive;
+      resetVideo(standby);
+      switching = false;
+    }, FADE_MS + 120);
+  }
+
+  // 每帧检查：当前视频接近结尾时触发叠化
+  function tick(){
+    requestAnimationFrame(tick);
+    if(switching || !started) return;
+
+    const v = active;
+    if(!v || v.readyState < 2) return;
+    if(!v.duration || !isFinite(v.duration) || v.duration <= FADE_S * 2) return;
+
+    if(v.currentTime >= v.duration - FADE_S){
+      crossfade();
+    }
+  }
+
+  // 视频加载完成后再启动（避免首帧黑屏）
+  if(vidA.readyState >= 2){
+    beginPlayback();
+  }else{
+    vidA.addEventListener('loadeddata', beginPlayback, { once:true });
+    // 兜底：3 秒后无论如何都尝试播放
+    setTimeout(beginPlayback, 3000);
+  }
+
+  // 出错时不影响页面，只记录日志（底色会作为兜底）
+  [vidA, vidB].forEach(v => {
+    v.addEventListener('error', () => {
+      console.warn('[背景视频] 加载失败：', v.src);
+    });
+  });
+
+  // 页面切回前台时，确保视频继续播放
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden && started){
+      const p = active.play();
+      if(p && p.catch) p.catch(()=>{});
+    }
+  });
+})();
+
 /* ==================== 存储 Key ==================== */
 const KEY_STORE   = 'longbao_ds_key';
 const BASE_STORE  = 'longbao_ds_base';
@@ -534,13 +630,6 @@ function localReply(text){
 /* ==================== 喵~ 句尾处理 ==================== */
 const PUNCT = '。！？!?；;…';
 
-/**
- * 给一段文本的每一句话末尾加上"喵~"
- * - 空行保留
- * - 以冒号/逗号结尾的引导行不加（如 "一服可用指令："）
- * - 已有"喵~"结尾的句子不重复添加
- * - 中文标点放在"喵~"之后，符合中文语感
- */
 function miaoLine(line){
   const t = line.replace(/\s+$/,'');
   if(!t) return line;
@@ -560,7 +649,7 @@ function miaoLine(line){
 
   return parts.map(p => {
     const core = p.text;
-    if(!core.trim()) return p.punct;          // 只有标点
+    if(!core.trim()) return p.punct;
     if(/喵~$/.test(core)) return core + p.punct;
     return core + '喵~' + p.punct;
   }).join('');
@@ -794,23 +883,6 @@ document.getElementById('clearKeyBtn').addEventListener('click', () => {
   refreshStatus();
   toast('已清空 API Key');
 });
-
-/* ==================== 火星粒子 ==================== */
-(function makeEmbers(){
-  const box = document.getElementById('embers');
-  const N = window.innerWidth < 600 ? 16 : 28;
-  for(let i = 0; i < N; i++){
-    const e = document.createElement('i');
-    const size = 3 + Math.random() * 6;
-    e.style.width  = size + 'px';
-    e.style.height = size + 'px';
-    e.style.left   = Math.random() * 100 + '%';
-    e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
-    e.style.animationDuration = (9 + Math.random() * 12) + 's';
-    e.style.animationDelay = (Math.random() * 14) + 's';
-    box.appendChild(e);
-  }
-})();
 
 /* ==================== 初始化 ==================== */
 (function init(){
