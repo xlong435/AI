@@ -37,7 +37,7 @@ body{
 /* ===== 背景视频 ===== */
 .bg{
   position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
-  background:var(--bg0); /* 视频未加载时的兜底底色 */
+  background:var(--bg0);
 }
 .bg-video{
   position:absolute;
@@ -51,7 +51,6 @@ body{
   pointer-events:none;
   background:transparent;
 }
-/* 视频上方一层薄薄的暗色渐晕，让前景更清晰 */
 .bg::after{
   content:"";
   position:absolute;inset:0;z-index:2;
@@ -133,7 +132,7 @@ body{
   background:linear-gradient(90deg,rgba(30,6,0,.65),rgba(30,6,0,.35),rgba(30,6,0,.65));
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-.ticker-track{display:flex;width:max-content;animation:marquee 34s linear infinite;}
+.ticker-track{display:flex;width:max-content;animation:marquee 44s linear infinite;}
 .ticker-track span{padding:7px 0;font-size:12.5px;color:#f0a986;letter-spacing:.3px;}
 .ticker-track span::after{content:"　";}
 @keyframes marquee{to{transform:translateX(-50%);}}
@@ -250,7 +249,7 @@ body{
 }
 .modal-mask.open{display:grid;}
 .modal{
-  width:100%;max-width:430px;border-radius:20px;padding:24px;
+  width:100%;max-width:460px;border-radius:20px;padding:24px;
   background:linear-gradient(160deg,#210906,#110302);
   border:1px solid rgba(255,120,40,.3);
   box-shadow:0 30px 90px rgba(0,0,0,.75), 0 0 70px rgba(255,60,0,.16);
@@ -259,13 +258,14 @@ body{
 .modal h2{margin:0 0 8px;font-size:18px;color:#ffd0a8;}
 .modal .hint{font-size:12.5px;color:var(--muted);margin:0 0 6px;line-height:1.7;}
 .modal label{display:block;font-size:12.5px;color:#ffb08a;margin:15px 0 6px;font-weight:600;}
-.modal input{
+.modal input, .modal select{
   width:100%;padding:11px 14px;border-radius:11px;font-size:14px;
   background:rgba(255,90,20,.07);border:1px solid rgba(255,120,40,.25);
   color:var(--text);outline:none;transition:.22s;
   font-family:inherit;
 }
-.modal input:focus{border-color:#ff7a18;box-shadow:0 0 0 3px rgba(255,90,20,.13);}
+.modal input:focus, .modal select:focus{border-color:#ff7a18;box-shadow:0 0 0 3px rgba(255,90,20,.13);}
+.modal select option{background:#210906;}
 .modal-actions{display:flex;gap:10px;margin-top:22px;}
 .btn{
   flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;
@@ -275,6 +275,28 @@ body{
 .btn.ghost{background:rgba(255,255,255,.06);color:#ffcbb0;border:1px solid rgba(255,120,40,.25);}
 .btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
 .warn{font-size:11.5px;color:#b9744f;margin:16px 0 0;line-height:1.65;}
+
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:15px 0 0;padding:10px 14px;border-radius:11px;
+  background:rgba(255,90,20,.07);border:1px solid rgba(255,120,40,.25);
+}
+.toggle-row span{font-size:13px;color:#ffb08a;font-weight:600;}
+.toggle-row small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;}
+.switch{
+  position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto;
+}
+.switch input{opacity:0;width:0;height:0;}
+.switch .slider{
+  position:absolute;cursor:pointer;inset:0;
+  background:rgba(255,255,255,.15);border-radius:26px;transition:.3s;
+}
+.switch .slider::before{
+  content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:.3s;
+}
+.switch input:checked + .slider{background:linear-gradient(135deg,#ff8a1e,#ff2d00);}
+.switch input:checked + .slider::before{transform:translateX(20px);}
 
 /* ===== Toast ===== */
 .toast{
@@ -287,7 +309,7 @@ body{
 }
 .toast.show{opacity:1;transform:translate(-50%,0);}
 
-/* ==================== 📱 手机端适配（不影响电脑端） ==================== */
+/* ==================== 📱 手机端适配 ==================== */
 @media (max-width: 640px){
   .app{
     padding-left:max(12px, env(safe-area-inset-left));
@@ -316,16 +338,14 @@ body{
     gap:8px;
     padding:4px 0 calc(12px + env(safe-area-inset-bottom));
   }
-  /* iOS 上 16px 以下会触发自动放大，这里锁 16px */
   .input-bar input{padding:13px 15px;font-size:16px;border-radius:13px;}
   #sendBtn{padding:0 20px;font-size:14px;border-radius:13px;letter-spacing:0;}
 
   .modal{padding:20px;border-radius:18px;}
-  .modal input{font-size:16px;}
+  .modal input, .modal select{font-size:16px;}
   .toast{bottom:calc(24px + env(safe-area-inset-bottom));font-size:12.5px;}
 }
 
-/* 小屏手机 */
 @media (max-width: 380px){
   .brand-text h1{font-size:14px;}
   .avatar-ring{width:40px;height:40px;}
@@ -333,7 +353,6 @@ body{
   #sendBtn{padding:0 15px;font-size:13.5px;}
 }
 
-/* 横屏矮屏手机：压缩头部，给聊天区更多空间 */
 @media (max-height: 560px) and (orientation: landscape){
   .topbar{padding:7px 0 7px;}
   .avatar-ring{width:36px;height:36px;}
@@ -345,7 +364,6 @@ body{
   .input-bar{padding-bottom:10px;}
 }
 
-/* 触摸设备：去掉 hover 位移，避免点击后卡住 */
 @media (hover: none){
   .chip:hover{transform:none;box-shadow:none;}
   .icon-btn:hover{transform:none;}
@@ -387,12 +405,14 @@ body{
       <span>💬 加群 1059442560 反馈 bug 或建议</span>
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
+      <span>🏗️ 二服指令：/alliance 城市联盟</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
       <span>🔥 一服 sp.longvalley.cn:32922</span>
       <span>🏙️ 二服（模组·模拟大都市）a6.minekuai.com:10300</span>
       <span>💬 加群 1059442560 反馈 bug 或建议</span>
       <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
       <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
+      <span>🏗️ 二服指令：/alliance 城市联盟</span>
       <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
     </div>
   </div>
@@ -408,7 +428,7 @@ body{
   <!-- 输入栏 -->
   <div class="input-bar">
     <input id="userInput" type="text" autocomplete="off"
-           placeholder="问问龙宝吧～（地址 / 玩法 / 指令…）">
+           placeholder="问问龙宝吧～（地址 / 玩法 / 指令 / 模组…）">
     <button id="sendBtn">发送</button>
   </div>
 </div>
@@ -417,7 +437,7 @@ body{
 <div class="modal-mask" id="modalMask">
   <div class="modal">
     <h2>🔥 龙宝设置</h2>
-    <p class="hint">不填 API Key 时，龙宝会自动使用内置知识库回答服务器相关问题。填写后优先调用 DeepSeek 智能回答。</p>
+    <p class="hint">不填 API Key 时，龙宝会用内置知识库回答服务器相关问题。填写后优先调用 DeepSeek，并可开启联网搜索解答 MC 通用问题。</p>
 
     <label>DeepSeek API Key</label>
     <input id="apiKeyInput" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" autocomplete="off">
@@ -427,6 +447,17 @@ body{
 
     <label>模型名称</label>
     <input id="modelInput" type="text" placeholder="deepseek-chat">
+
+    <div class="toggle-row">
+      <div>
+        <span>联网搜索</span>
+        <small>开启后允许回答 MC Wiki / MC 百科等通用问题</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="webSearchToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
 
     <div class="modal-actions">
       <button class="btn ghost" id="clearKeyBtn">清空</button>
@@ -444,12 +475,12 @@ body{
 (function initVideoBg(){
   const vidA = document.getElementById('vidA');
   const vidB = document.getElementById('vidB');
-  const FADE_MS = 1200;              // 叠化时长（要和 CSS transition 一致）
+  const FADE_MS = 1200;
   const FADE_S  = FADE_MS / 1000;
 
-  let active = vidA;                 // 当前正在播放的视频
-  let standby = vidB;                // 待命视频
-  let switching = false;             // 是否正在叠化
+  let active = vidA;
+  let standby = vidB;
+  let switching = false;
   let started = false;
 
   function resetVideo(v){
@@ -470,7 +501,6 @@ body{
     requestAnimationFrame(tick);
   }
 
-  // 执行交叉叠化：待命视频从 0 开始播放并淡入，当前视频淡出
   function crossfade(){
     if(switching) return;
     switching = true;
@@ -479,7 +509,6 @@ body{
     const p = standby.play();
     if(p && p.catch) p.catch(()=>{});
 
-    // 下一帧再改透明度，确保 transition 能触发
     requestAnimationFrame(() => {
       standby.style.opacity = '1';
       active.style.opacity = '0';
@@ -495,7 +524,6 @@ body{
     }, FADE_MS + 120);
   }
 
-  // 每帧检查：当前视频接近结尾时触发叠化
   function tick(){
     requestAnimationFrame(tick);
     if(switching || !started) return;
@@ -509,23 +537,19 @@ body{
     }
   }
 
-  // 视频加载完成后再启动（避免首帧黑屏）
   if(vidA.readyState >= 2){
     beginPlayback();
   }else{
     vidA.addEventListener('loadeddata', beginPlayback, { once:true });
-    // 兜底：3 秒后无论如何都尝试播放
     setTimeout(beginPlayback, 3000);
   }
 
-  // 出错时不影响页面，只记录日志（底色会作为兜底）
   [vidA, vidB].forEach(v => {
     v.addEventListener('error', () => {
       console.warn('[背景视频] 加载失败：', v.src);
     });
   });
 
-  // 页面切回前台时，确保视频继续播放
   document.addEventListener('visibilitychange', () => {
     if(!document.hidden && started){
       const p = active.play();
@@ -538,86 +562,188 @@ body{
 const KEY_STORE   = 'longbao_ds_key';
 const BASE_STORE  = 'longbao_ds_base';
 const MODEL_STORE = 'longbao_ds_model';
+const SEARCH_STORE= 'longbao_ds_search';
 const DEFAULT_BASE  = 'https://api.deepseek.com';
 const DEFAULT_MODEL = 'deepseek-chat';
 
-/* ==================== 知识库（喂给 DeepSeek） ==================== */
+/* ==================== 知识库（喂给 DeepSeek + 本地兜底） ==================== */
 const KNOWLEDGE = `
 【服务器名称】龙之谷物语
+【服务器定位】Minecraft Java 版服务器，包含一服（插件服）和二服（模组服）
 【服务器地址】
-- 一服：sp.longvalley.cn:32922
-- 二服：a6.minekuai.com:10300（模组（模拟大都市）服）
+- 一服（插件服）：sp.longvalley.cn:32922
+- 二服（模组服·模拟大都市）：a6.minekuai.com:10300
 【交流群】加群 1059442560 反馈 bug 或建议
 【玩法】以生存、探索、建筑、养老为主
 【服务器规则】不允许任何形式的拆家、骂人、恶意 PVP 和组队等行为
+
+===================== 一服（插件服）=====================
+【服务端】Purpur / Folia 26.1.2（Minecraft Java 版）
+【主要插件与机制】
+- 扫地姬：每 10 分钟清理一次掉落物和实体，会在 60 秒、30 秒、10 秒、5~1 秒倒计时提醒。清理后的物品会进入"公共垃圾桶"，每 3 次扫地后垃圾桶刷新一次。
+- 公共垃圾桶：可点击聊天栏提示打开，暂存被清理的物品。
+- SkinsRestorer：皮肤系统，可显示正版/自定义皮肤。
+- Vault：经济系统插件，支持 /balance 查看余额。
+- ViewSlimeChunk：史莱姆区块查看插件，可用来查找史莱姆区块。
+
 【一服可用指令】
-- /tpa [玩家名称] —— 玩家互传
+- /tpa [玩家名称] —— 玩家互传（传送请求）
 - /balance —— 查看剩余余额
 - 剩余功能可前往服务器菜单使用
 - 如果内容不足，欢迎各位进群补充
+
+===================== 二服（模组服·模拟大都市）=====================
+【服务端】NeoForge 21.1.248 · Minecraft 1.21.1（离线模式）
+【端口】10300
+【核心玩法】模拟大都市（New Sim-U-Kraft 2.2.0）——城市模拟经营
+【核心模组列表】
+- [新：模拟大都市] New-Sim-U-Kraft 2.2.0：城市模拟经营核心，可建造城市、雇佣市民
+- Sim-U-Kraft: City Alliance：城市联盟系统，支持 /alliance 指令
+- [通用机械] Mekanism + Generators + Tools：工业科技模组，含发电机、工具、强化黑曜石等
+- [农夫乐事] Farmer's Delight：农业与烹饪
+- [傻瓜烹饪/懒人厨房] Cooking for Blockheads：厨房自动化
+- [汤姆的简易存储] Tom's Simple Storage：物品存储系统
+- [安全工艺] SecurityCraft：安全防护
+- [沉浸式飞机] Immersive Aircraft：飞行载具
+- [Xaero 的小地图/世界地图]：地图与导航
+- [热带世界] Tropicraft：热带生物群系与生物
+- [我们走过的生物群系] Oh The Biomes We've Gone：更多生物群系
+- [Waystones]：传送石碑
+- [FTB Quests / Teams / Library]：任务与队伍系统
+- [Macaw 的家具]：家具装饰
+- [龙咒异闻录] dcc + dcrapi：自定义内容
+- [树叶快速腐烂] [属性修复] [FastWorkbench] [GeckoLib] [Kotlin for Forge] [Architectury] [Balm] 等前置
+
+【二服·模拟大都市玩法要点】
+- 建造城市：需要先建"建材商店"，然后是农场、面包店、住宅等
+- 雇佣市民：市民可以做建筑工、规划师、农民、商人、医生、矿物钻井工等
+- 市民有等级（会升级）、寿命、饥饿、血量，需要吃饭和就医
+- 保证市民吃饭：面包店、餐厅、肉铺等；保证市民医疗：医院、诊所
+- 矿物钻井平台：可采集矿物资源
+- 城市联盟：通过 /alliance 打开联盟菜单，与其他城市结盟
+- 经济系统：游戏内货币，可向其他玩家借贷（有利息）
+
+【二服常用指令】
+- /alliance —— 打开城市联盟菜单
+- 大部分功能通过服务器菜单或模组 GUI 使用
+- 如果内容不足，欢迎各位进群补充
+
+===================== 通用 MC 知识 =====================
+当用户问及 MC 通用内容（合成、生物、附魔、红石、地形、结构、种子等），
+可基于 Minecraft Wiki（zh.minecraft.wiki / minecraft.wiki）和 MC 百科（mcmod.cn）的公开知识回答。
 `;
 
-const SYSTEM_PROMPT = `你是「龙之谷物语」Minecraft 服务器的智能客服，名字叫「龙宝」，形象是一只热情的小火龙。
-说话风格：亲切、热情、简洁，适度使用 🔥🐉🌿 等 emoji，回答不要太长（一般 2~6 行）。
-你必须严格依据下面的知识库回答，绝对不要编造服务器地址、群号或规则。
-不要在回答里自己添加"喵~"，系统会统一在句尾补上，你只需要正常写内容即可。
+const SYSTEM_PROMPT_BASE = `你是「龙之谷物语」Minecraft 服务器的智能客服，名字叫「龙宝」，形象是一只热情的小火龙。
+说话风格：亲切、热情、简洁，适度使用 🔥🐉🌿 等 emoji，回答不要太长（一般 2~8 行）。
+不要自己添加"喵~"，系统会统一在句尾补上，你只需要正常写内容即可。
+
+【重要】你的回答必须严格依据下面的知识库，绝对不要编造服务器地址、群号、指令或规则。
+如果知识库中没有，礼貌说明不清楚，并建议加群 1059442560 咨询管理。
 
 ===== 知识库 =====
 ${KNOWLEDGE}
 ==================
 
-要求：
+【回答要求】
 1. 用户问服务器地址时，必须完整给出一服和二服的地址。
 2. 用户问 bug / 建议 / 反馈时，告诉对方加群 1059442560。
 3. 用户问玩法时，回答以生存、探索、建筑、养老为主。
 4. 用户问规则时，说明不允许拆家、骂人、恶意 PVP 和组队。
-5. 用户问指令 / 命令 / 菜单时，列出：/tpa [玩家名称]（玩家互传）、/balance（查看剩余余额）、剩余功能可前往服务器菜单使用，并说明"如果内容不足，欢迎各位进群补充"。
-6. 知识库中没有的内容，礼貌说明不清楚，并建议加群 1059442560 咨询管理。
-7. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。`;
+5. 用户问一服指令/命令时，列出 /tpa [玩家名称]（玩家互传）、/balance（查看剩余余额），说明剩余功能可前往服务器菜单使用，并说明"如果内容不足，欢迎各位进群补充"。
+6. 用户问扫地姬/清理/垃圾桶时，说明每 10 分钟清理一次，有 60/30/10/5~1 秒倒计时，物品进入公共垃圾桶，每 3 次扫地后刷新。
+7. 用户问史莱姆区块/区块时，说明一服装有 ViewSlimeChunk 插件可查看史莱姆区块。
+8. 用户问二服模组/模拟大都市时，列出核心模组，并说明城市模拟经营玩法（建材商店、市民、医生、工业等）。
+9. 用户问二服指令时，说明 /alliance 打开城市联盟菜单，其余通过模组 GUI。
+10. 知识库中没有的服务器相关疑问，礼貌说明不清楚，并建议加群 1059442560。
+11. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。`;
+
+const WEB_SEARCH_ADDON = `
+
+【联网搜索扩展】
+用户已开启联网搜索。除服务器问题外，你也可以回答 MC 通用问题，
+例如：合成配方、生物习性、附魔机制、红石电路、地形结构、种子推荐、版本差异等。
+回答这类通用问题时：
+- 优先参考 Minecraft Wiki（zh.minecraft.wiki / minecraft.wiki）和 MC 百科（mcmod.cn）的知识。
+- 回答尽量准确、简洁，必要时给出出处名称（如"据 Minecraft Wiki"）。
+- 如果涉及版本差异，请先确认用户问的是哪个版本（如 1.21.1）。
+- 服务器内涉及的具体问题仍以知识库为准，不要与服务器设定冲突。`;
 
 /* ==================== 本地关键词规则 ==================== */
 const RULES = [
-  /* 指令类放最前，避免被"服务器"等宽泛关键词抢先命中 */
+  /* —— 指令类放最前 —— */
   {
-    keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键'],
-    reply: '🕹️ 一服可用指令：\n· **/tpa [玩家名称]** —— 玩家互传\n· **/balance** —— 查看剩余余额\n· 剩余功能可前往**服务器菜单**使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议'
+    keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键','alliance','联盟'],
+    reply: '🕹️ 服务器常用指令：\n· 一服：**/tpa [玩家名称]** 玩家互传 · **/balance** 查看余额\n· 二服：**/alliance** 打开城市联盟菜单\n· 剩余功能可前往服务器菜单或模组 GUI 使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议'
   },
+  /* —— 扫地姬 / 清理 / 垃圾桶 —— */
+  {
+    keys: ['扫地姬','扫地','清理','垃圾桶','掉落物','清除','刷新'],
+    reply: '🧹 **扫地姬** 每 10 分钟清理一次掉落物和实体：\n· 会提前 60 / 30 / 10 / 5~1 秒倒计时提醒\n· 清理后物品进入**公共垃圾桶**（点击聊天栏提示可打开）\n· 每 **3 次扫地**后公共垃圾桶刷新一次\n\n记得及时捡走重要物品哦～'
+  },
+  /* —— 史莱姆区块 / 区块 —— */
+  {
+    keys: ['史莱姆区块','史莱姆','区块','chunk','slime'],
+    reply: '🟩 一服装有 **ViewSlimeChunk** 插件，可以用来查看**史莱姆区块**～\n在服务器菜单或插件命令里找到对应功能即可查看。\n\n💬 具体用法可以加群 **1059442560** 问管理'
+  },
+  /* —— 模组 / 模拟大都市 —— */
+  {
+    keys: ['模组','mod','模拟大都市','二服','2服','第二个服','simukraft','sim-u-kraft','城市','市民','建筑工','mekanism','通用机械'],
+    reply: '🏙️ 二服（模组·模拟大都市）地址：**a6.minekuai.com:10300**\n\n核心模组：\n· **新·模拟大都市** —— 城市模拟经营\n· **通用机械 Mekanism** —— 工业科技\n· **农夫乐事 / 傻瓜烹饪** —— 农业烹饪\n· **汤姆的简易存储** —— 存储系统\n· 还有安全工艺、沉浸式飞机、热带世界、Waystones 等\n\n玩法：建建材商店 → 农场 → 住宅，雇佣市民，发展工业与商业～'
+  },
+  /* —— 模拟大都市玩法细节 —— */
+  {
+    keys: ['市民','村民','雇佣','医生','医院','诊所','吃饭','饿','寿命','等级','矿物钻井','钻井','农田',' farmland','build_box'],
+    reply: '👥 **模拟大都市**玩法小贴士：\n· 先建 **建材商店**，否则很多建造都做不了\n· 市民需要吃饭（面包店/餐厅/肉铺）和就医（医院/诊所）\n· 市民有等级、寿命、饥饿值和血量\n· **矿物钻井平台**可以采集矿物资源\n· 多建"1单元"住宅会吸引新市民入住\n\n有疑问可以加群 **1059442560** 一起交流～'
+  },
+  /* —— bug / 反馈 —— */
   {
     keys: ['bug','反馈','建议','加群','群号','进群','扣群','q群','联系','管理','举报','投诉','意见','补充'],
     reply: '🐉 遇到 bug 或者有建议，欢迎加群 **1059442560** 反馈！\n管理员看到会第一时间处理的～'
   },
-  {
-    keys: ['模组','mod','模拟大都市','二服','2服','第二个服'],
-    reply: '🏙️ 模组服（模拟大都市）地址：**a6.minekuai.com:10300**\n记得先安装对应模组再进服哦～\n\n🔥 一服（原版生存）地址：**sp.longvalley.cn:32922**'
-  },
+  /* —— 地址 —— */
   {
     keys: ['地址','ip','端口','进服','连接','怎么进','如何进','进入','联机','加入','在哪玩','网址'],
-    reply: '🔥 龙之谷物语服务器地址：\n· 一服：**sp.longvalley.cn:32922**\n· 二服：**a6.minekuai.com:10300**（模组（模拟大都市）服）\n\n进不去的话可以加群 **1059442560** 找管理帮忙～'
+    reply: '🔥 龙之谷物语服务器地址：\n· 一服（插件服）：**sp.longvalley.cn:32922**\n· 二服（模组·模拟大都市）：**a6.minekuai.com:10300**\n\n进不去的话可以加群 **1059442560** 找管理帮忙～'
   },
+  /* —— 规则 —— */
   {
     keys: ['规则','拆家','骂人','pvp','组队','禁止','违规','封号','惩罚','能不能打','打架'],
     reply: '⚠️ 服务器**不允许**任何形式的以下行为：\n· 拆家\n· 骂人\n· 恶意 PVP\n· 恶意组队\n\n一起维护友好的氛围，违规会被处理哦～'
   },
+  /* —— 玩法 —— */
   {
     keys: ['玩法','模式','内容','生存','探索','建筑','养老','做什么','有什么玩','肝'],
-    reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n想肝就肝，想躺就躺，总有一款适合你！'
+    reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n一服偏原版生存，二服主打**模拟大都市**城市经营。\n想肝就肝，想躺就躺，总有一款适合你！'
   },
+  /* —— 版本 / 服务端 —— */
+  {
+    keys: ['版本','服务端','purpur','folia','neoforge','forge','1.21','1.20'],
+    reply: '📦 服务器版本信息：\n· 一服：**Purpur / Folia**（插件服，原版生存）\n· 二服：**NeoForge 21.1.248 · Minecraft 1.21.1**（模组服）\n\n进服前请确认客户端版本匹配～'
+  },
+  /* —— 皮肤 —— */
+  {
+    keys: ['皮肤','skin','skinsrestorer','正版'],
+    reply: '👕 一服装有 **SkinsRestorer** 插件，可以显示正版或自定义皮肤～\n具体用法可以加群 **1059442560** 问管理。'
+  },
+  /* —— 你好 —— */
   {
     keys: ['你好','您好','hi','hello','在吗','嗨','哈喽','你是谁','介绍下自己'],
-    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、模组服、服务器指令、服务器规则，或者加群反馈问题！'
+    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、一服指令、扫地姬、史莱姆区块、二服模组、模拟大都市玩法、服务器规则，或者加群反馈问题！'
   },
+  /* —— 帮助 —— */
   {
     keys: ['帮助','能做什么','会什么','怎么用','使用说明'],
-    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n🌿 玩法介绍\n🏙️ 模组服信息\n🕹️ 一服可用指令\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
+    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n🌿 玩法介绍\n🕹️ 一服指令 · 扫地姬 · 史莱姆区块\n🏙️ 二服模组 / 模拟大都市玩法\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
   },
+  /* —— 服务器宽泛 —— */
   {
     keys: ['服务器','开服','什么时候开','几个服'],
-    reply: '🔥 龙之谷物语目前有两个服：\n· 一服：**sp.longvalley.cn:32922**（原版生存）\n· 二服：**a6.minekuai.com:10300**（模组（模拟大都市）服）\n\n玩法以生存、探索、建筑、养老为主～\n有问题可以加群 **1059442560** 反馈！'
+    reply: '🔥 龙之谷物语目前有两个服：\n· 一服：**sp.longvalley.cn:32922**（插件服 · 原版生存）\n· 二服：**a6.minekuai.com:10300**（模组服 · 模拟大都市）\n\n玩法以生存、探索、建筑、养老为主～\n有问题可以加群 **1059442560** 反馈！'
   }
 ];
 
 const FALLBACK =
-  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 玩法 / 模组服 / 一服指令 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
+  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 玩法 / 一服指令 / 扫地姬 / 史莱姆区块 / 二服模组 / 模拟大都市玩法 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
 
 function localReply(text){
   const t = text.toLowerCase();
@@ -633,7 +759,7 @@ const PUNCT = '。！？!?；;…';
 function miaoLine(line){
   const t = line.replace(/\s+$/,'');
   if(!t) return line;
-  if(/[：:,，、]$/.test(t)) return t;   // 引导语，不加
+  if(/[：:,，、]$/.test(t)) return t;
 
   const parts = [];
   let buf = '';
@@ -728,6 +854,11 @@ function showTyping(){
 
 /* ==================== DeepSeek 调用 ==================== */
 function getKey(){ return (localStorage.getItem(KEY_STORE) || '').trim(); }
+function isSearchOn(){ return localStorage.getItem(SEARCH_STORE) === '1'; }
+
+function buildSystemPrompt(){
+  return SYSTEM_PROMPT_BASE + (isSearchOn() ? WEB_SEARCH_ADDON : '');
+}
 
 async function askDeepSeek(history){
   const key = getKey();
@@ -744,9 +875,9 @@ async function askDeepSeek(history){
     },
     body: JSON.stringify({
       model,
-      messages: [{ role:'system', content: SYSTEM_PROMPT }, ...history],
+      messages: [{ role:'system', content: buildSystemPrompt() }, ...history],
       temperature: 0.65,
-      max_tokens: 700,
+      max_tokens: 900,
       stream: false
     })
   });
@@ -794,8 +925,8 @@ async function handleSend(raw){
   }
 
   typing.remove();
-  addMessage('bot', reply);      // 展示时自动补"喵~"
-  history.push({ role:'assistant', content: reply });  // 历史存原文，避免重复
+  addMessage('bot', reply);
+  history.push({ role:'assistant', content: reply });
   if(history.length > 16) history = history.slice(-16);
 
   busy = false;
@@ -823,10 +954,11 @@ inputEl.addEventListener('keydown', e => {
 const QUICK_LIST = [
   '服务器地址是什么？',
   '一服有什么可用指令？',
-  '怎么进模组服？',
-  '服务器玩法有哪些？',
+  '扫地姬多久清理一次？',
+  '史莱姆区块怎么看？',
+  '二服有哪些模组？',
+  '模拟大都市怎么玩？',
   '服务器规则是什么？',
-  '我要反馈 bug',
   '群号是多少？'
 ];
 QUICK_LIST.forEach(q => {
@@ -838,18 +970,24 @@ QUICK_LIST.forEach(q => {
 });
 
 /* ==================== 设置弹窗 ==================== */
-const apiKeyInput  = document.getElementById('apiKeyInput');
-const baseUrlInput = document.getElementById('baseUrlInput');
-const modelInput   = document.getElementById('modelInput');
+const apiKeyInput     = document.getElementById('apiKeyInput');
+const baseUrlInput    = document.getElementById('baseUrlInput');
+const modelInput      = document.getElementById('modelInput');
+const webSearchToggle = document.getElementById('webSearchToggle');
 
 function refreshStatus(){
-  statusText.textContent = getKey() ? '龙宝 · DeepSeek 已连接' : '龙宝 · 在线（本地知识库）';
+  const hasKey = !!getKey();
+  const search = isSearchOn();
+  if(hasKey && search) statusText.textContent = '龙宝 · DeepSeek + 联网';
+  else if(hasKey)      statusText.textContent = '龙宝 · DeepSeek 已连接';
+  else                 statusText.textContent = '龙宝 · 在线（本地知识库）';
 }
 
 document.getElementById('settingsBtn').addEventListener('click', () => {
   apiKeyInput.value  = localStorage.getItem(KEY_STORE) || '';
   baseUrlInput.value = localStorage.getItem(BASE_STORE) || DEFAULT_BASE;
   modelInput.value   = localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL;
+  webSearchToggle.checked = isSearchOn();
   modalMask.classList.add('open');
 });
 
@@ -861,16 +999,19 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const k = apiKeyInput.value.trim();
   const b = baseUrlInput.value.trim() || DEFAULT_BASE;
   const m = modelInput.value.trim() || DEFAULT_MODEL;
+  const s = webSearchToggle.checked;
 
   if(k){
     localStorage.setItem(KEY_STORE, k);
     localStorage.setItem(BASE_STORE, b);
     localStorage.setItem(MODEL_STORE, m);
-    toast('✅ 已保存，龙宝已接入 DeepSeek');
+    localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
+    toast(s ? '✅ 已保存，龙宝已接入 DeepSeek 并开启联网搜索' : '✅ 已保存，龙宝已接入 DeepSeek');
   }else{
     localStorage.removeItem(KEY_STORE);
     localStorage.setItem(BASE_STORE, b);
     localStorage.setItem(MODEL_STORE, m);
+    localStorage.setItem(SEARCH_STORE, s ? '1' : '0');
     toast('已清空 API Key，使用本地知识库回答');
   }
   refreshStatus();
@@ -888,15 +1029,22 @@ document.getElementById('clearKeyBtn').addEventListener('click', () => {
 (function init(){
   refreshStatus();
 
-  // 欢迎语（同样会自动带上"喵~"）
+  // 欢迎语
   setTimeout(() => {
     addMessage('bot',
       '🐉🔥 你好呀，我是**龙宝**，龙之谷物语的智能客服！\n\n' +
-      '可以问我：\n· 🔥 服务器地址 / 怎么进服\n· 🕹️ 一服可用指令\n· 🌿 玩法介绍\n· 🏙️ 模组服信息\n· 📜 服务器规则\n· 💬 加群反馈 bug 或建议'
+      '我已经记住了两个服务器的信息，可以问我：\n' +
+      '· 🔥 服务器地址 / 怎么进服\n' +
+      '· 🕹️ 一服指令（/tpa · /balance）\n' +
+      '· 🧹 扫地姬 / 公共垃圾桶\n' +
+      '· 🟩 史莱姆区块查看\n' +
+      '· 🏙️ 二服模组 / 模拟大都市玩法\n' +
+      '· 📜 服务器规则\n' +
+      '· 💬 加群反馈 bug 或建议\n\n' +
+      '接入 DeepSeek 并开启联网后，还能回答更多 MC 通用问题哦～'
     );
   }, 420);
 
-  // 仅在桌面端自动聚焦，避免手机键盘自动弹出遮挡界面
   if(window.matchMedia('(min-width: 641px)').matches){
     setTimeout(() => inputEl.focus(), 600);
   }
