@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0b0403">
+<!-- 网页图标：电脑标签页 + 手机添加到桌面，统一使用 icon.webp -->
+<link rel="icon" type="image/webp" href="icon.webp">
+<link rel="shortcut icon" type="image/webp" href="icon.webp">
+<link rel="apple-touch-icon" href="icon.webp">
+<link rel="mask-icon" href="icon.webp" color="#ff2d00">
 <title>龙之谷物语智能客服 · 龙宝</title>
 <style>
 :root{
@@ -29,46 +34,30 @@ body{
   overscroll-behavior:none;
 }
 
-/* ==================== 视频背景 ==================== */
-.bg-video-wrap{
-  position:fixed;inset:0;z-index:0;
-  overflow:hidden;pointer-events:none;
-  /* 视频未加载/加载失败时的兜底渐变（火红氛围） */
+/* ===== 背景火光 ===== */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.bg::before{
+  content:"";position:absolute;inset:-20%;
   background:
     radial-gradient(circle at 15% 105%, rgba(255,60,0,.45), transparent 52%),
     radial-gradient(circle at 85% 95%, rgba(255,140,0,.28), transparent 48%),
-    radial-gradient(circle at 50% -10%, rgba(150,25,0,.5), transparent 60%),
-    #0b0403;
+    radial-gradient(circle at 50% -10%, rgba(150,25,0,.5), transparent 60%);
+  animation:pulseGlow 9s ease-in-out infinite alternate;
 }
-.bg-video-wrap video{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  opacity:0;
-  transition:opacity 1.15s ease-in-out;   /* 叠化转场时长，与 JS 中 FADE 保持一致 */
-  will-change:opacity;
-  transform:translateZ(0);
-  backface-visibility:hidden;
-  pointer-events:none;
+.bg::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,110,40,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,110,40,.045) 1px, transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(circle at 50% 40%, #000 10%, transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 10%, transparent 78%);
 }
-.bg-video-wrap video.active{opacity:1;}
-
-/* 视频之上的色调层：保留火红氛围 + 保证前景文字可读 */
-.bg-overlay{
-  position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:
-    radial-gradient(circle at 15% 105%, rgba(255,60,0,.30), transparent 55%),
-    radial-gradient(circle at 85% 95%, rgba(255,140,0,.18), transparent 50%),
-    linear-gradient(rgba(11,4,3,.66), rgba(11,4,3,.80));
-  animation:overlayPulse 9s ease-in-out infinite alternate;
+@keyframes pulseGlow{
+  from{opacity:.75;transform:scale(1);}
+  to{opacity:1;transform:scale(1.06);}
 }
-@keyframes overlayPulse{
-  from{opacity:.94;}
-  to{opacity:1;}
-}
-
-/* ===== 火星粒子 ===== */
-.embers{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none;}
+.embers{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none;}
 .embers i{
   position:absolute;bottom:-24px;border-radius:50%;
   background:radial-gradient(circle,#ffe08a 0%,#ff8a1e 45%,rgba(255,60,0,0) 72%);
@@ -84,7 +73,7 @@ body{
 
 /* ===== 布局 ===== */
 .app{
-  position:relative;z-index:3;
+  position:relative;z-index:2;
   height:100vh;height:100dvh;
   max-width:880px;margin:0 auto;
   display:flex;flex-direction:column;
@@ -138,18 +127,17 @@ body{
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
 .icon-btn{
   flex:0 0 auto;width:40px;height:40px;border-radius:12px;cursor:pointer;
-  background:rgba(255,90,20,.12);border:1px solid var(--border);
+  background:rgba(255,90,20,.09);border:1px solid var(--border);
   color:#ffb88e;font-size:17px;transition:.22s;
   display:grid;place-items:center;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-.icon-btn:hover{background:rgba(255,90,20,.28);color:#fff;transform:rotate(35deg);}
+.icon-btn:hover{background:rgba(255,90,20,.22);color:#fff;transform:rotate(35deg);}
 
 /* ===== 滚动公告 ===== */
 .ticker{
   overflow:hidden;white-space:nowrap;flex:0 0 auto;
   border-bottom:1px solid rgba(255,120,40,.12);
-  background:linear-gradient(90deg,rgba(255,60,0,.14),rgba(255,120,0,.05),rgba(255,60,0,.14));
+  background:linear-gradient(90deg,rgba(255,60,0,.1),rgba(255,120,0,.04),rgba(255,60,0,.1));
 }
 .ticker-track{display:flex;width:max-content;animation:marquee 34s linear infinite;}
 .ticker-track span{padding:7px 0;font-size:12.5px;color:#e79b78;letter-spacing:.3px;}
@@ -190,10 +178,9 @@ body{
   word-break:break-word;overflow-wrap:anywhere;
 }
 .msg.bot .bubble{
-  background:linear-gradient(150deg,rgba(28,8,4,.82),rgba(40,12,4,.68));
+  background:linear-gradient(150deg,rgba(255,70,10,.16),rgba(255,140,30,.07));
   border:1px solid var(--border);border-top-left-radius:5px;
-  box-shadow:0 4px 20px rgba(0,0,0,.35), 0 0 24px rgba(255,50,0,.08);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 4px 20px rgba(255,50,0,.1);
 }
 .msg.user .bubble{
   background:linear-gradient(135deg,#ff7a18,#ff2d00);
@@ -223,13 +210,12 @@ body{
 .chip{
   flex:0 0 auto;padding:8px 15px;border-radius:999px;font-size:13px;
   cursor:pointer;white-space:nowrap;transition:.2s;
-  background:rgba(28,10,6,.62);border:1px solid rgba(255,120,40,.32);
+  background:rgba(255,90,20,.08);border:1px solid rgba(255,120,40,.28);
   color:#ffcbb0;font-family:inherit;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .chip:hover{
-  background:rgba(255,90,20,.30);border-color:#ff7a18;color:#fff;
-  transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,60,0,.3);
+  background:rgba(255,90,20,.22);border-color:#ff7a18;color:#fff;
+  transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,60,0,.25);
 }
 .chip:active{transform:translateY(0) scale(.97);}
 
@@ -237,15 +223,14 @@ body{
 .input-bar{display:flex;gap:10px;padding:4px 0 18px;flex:0 0 auto;}
 .input-bar input{
   flex:1;min-width:0;padding:14px 18px;border-radius:14px;font-size:15px;
-  background:rgba(28,10,6,.66);
-  border:1px solid rgba(255,120,40,.34);
+  background:rgba(255,90,20,.07);
+  border:1px solid rgba(255,120,40,.3);
   color:var(--text);outline:none;transition:.25s;
   font-family:inherit;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .input-bar input::placeholder{color:#a86a55;}
 .input-bar input:focus{
-  border-color:#ff7a18;background:rgba(255,90,20,.18);
+  border-color:#ff7a18;background:rgba(255,90,20,.13);
   box-shadow:0 0 0 3px rgba(255,90,20,.14), 0 0 26px rgba(255,60,0,.22);
 }
 #sendBtn{
@@ -263,7 +248,7 @@ body{
 /* ===== 设置弹窗 ===== */
 .modal-mask{
   position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:20px;
-  background:rgba(6,2,1,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  background:rgba(6,2,1,.75);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
   overflow-y:auto;
 }
 .modal-mask.open{display:grid;}
@@ -369,25 +354,11 @@ body{
   .icon-btn:hover{transform:none;}
   #sendBtn:hover{transform:none;filter:none;}
 }
-
-/* 系统开启"减弱动态效果"时，去掉叠化过渡，直接切换 */
-@media (prefers-reduced-motion: reduce){
-  .bg-video-wrap video{transition:opacity .35s linear;}
-}
 </style>
 </head>
 <body>
 
-<!-- ==================== 视频背景（双 video 叠化转场） ==================== -->
-<div class="bg-video-wrap" id="bgVideoWrap">
-  <video id="bgVideoA" class="active" src="background.mp4"
-         muted playsinline preload="auto" disablepictureinpicture
-         aria-hidden="true"></video>
-  <video id="bgVideoB" src="background.mp4"
-         muted playsinline preload="auto" disablepictureinpicture
-         aria-hidden="true"></video>
-</div>
-<div class="bg-overlay"></div>
+<div class="bg"></div>
 <div class="embers" id="embers"></div>
 
 <div class="app">
@@ -467,119 +438,6 @@ body{
 <div class="toast" id="toast"></div>
 
 <script>
-/* ==================== 视频背景：结束前叠化转场，无缝重播 ==================== */
-(function initVideoBackground(){
-  const wrap = document.getElementById('bgVideoWrap');
-  const vA = document.getElementById('bgVideoA');
-  const vB = document.getElementById('bgVideoB');
-  if(!wrap || !vA || !vB) return;
-
-  const FADE = 1150;   // 叠化时长(ms)，需与 CSS transition 中的 1.15s 保持一致
-  const LEAD = 1.15;   // 提前多少秒开始转场（略大于叠化时长，保证无缝）
-
-  let active = vA;
-  let idle   = vB;
-  let switching = false;
-  let failed = false;
-
-  function safePlay(v){
-    if(!v || failed) return;
-    const p = v.play();
-    if(p && typeof p.catch === 'function'){
-      p.catch(() => { /* 自动播放被拦截，等待用户交互后再恢复 */ });
-    }
-  }
-
-  function switchTo(){
-    if(switching || failed) return;
-    switching = true;
-
-    const next = idle;
-    const prev = active;
-
-    // 让下一个视频从头开始播放
-    try{ next.currentTime = 0; }catch(e){}
-    safePlay(next);
-
-    // 叠化：新视频淡入，旧视频淡出（CSS transition 生效）
-    next.classList.add('active');
-    prev.classList.remove('active');
-
-    // 交换角色
-    active = next;
-    idle   = prev;
-
-    // 叠化结束后暂停旧视频，释放性能
-    setTimeout(() => {
-      try{
-        prev.pause();
-        prev.currentTime = 0;
-      }catch(e){}
-      switching = false;
-    }, FADE + 120);
-  }
-
-  function watch(v){
-    // 用 timeupdate 提前触发转场，避免黑帧
-    v.addEventListener('timeupdate', () => {
-      if(failed || switching || v !== active) return;
-      const d = v.duration;
-      if(!d || !isFinite(d) || d <= LEAD * 2) return;
-      if(v.currentTime >= d - LEAD) switchTo();
-    });
-
-    // ended 作为兜底（比如视频很短或 timeupdate 未触发）
-    v.addEventListener('ended', () => {
-      if(failed || switching || v !== active) return;
-      switchTo();
-    });
-
-    // 加载失败：隐藏视频，显示 CSS 渐变兜底背景
-    v.addEventListener('error', () => {
-      if(failed) return;
-      failed = true;
-      vA.style.display = 'none';
-      vB.style.display = 'none';
-      console.warn('[龙宝] 背景视频加载失败，已切换为渐变背景');
-    });
-  }
-
-  watch(vA);
-  watch(vB);
-
-  // 启动第一个视频
-  vA.currentTime = 0;
-  safePlay(vA);
-
-  // 移动端自动播放常被拦截：首次交互时恢复播放
-  function resumeOnInteraction(){
-    if(!failed && active.paused){
-      safePlay(active);
-    }
-    document.removeEventListener('touchstart', resumeOnInteraction);
-    document.removeEventListener('click', resumeOnInteraction);
-    document.removeEventListener('keydown', resumeOnInteraction);
-  }
-  document.addEventListener('touchstart', resumeOnInteraction, {passive:true});
-  document.addEventListener('click', resumeOnInteraction);
-  document.addEventListener('keydown', resumeOnInteraction);
-
-  // 页面回到前台时恢复播放（切后台浏览器会暂停视频）
-  document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'visible' && !failed && active.paused){
-      safePlay(active);
-    }
-  });
-
-  // 兜底：万一视频卡住不动，定时尝试恢复
-  setInterval(() => {
-    if(failed || switching) return;
-    if(active.paused && !active.ended){
-      safePlay(active);
-    }
-  }, 3000);
-})();
-
 /* ==================== 存储 Key ==================== */
 const KEY_STORE   = 'longbao_ds_key';
 const BASE_STORE  = 'longbao_ds_base';
