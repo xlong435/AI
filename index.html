@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b0403">
+<title>龙之谷物语智能客服 · 龙宝</title>
+<style>
+:root{
+  --fire1:#ff2d00;
+  --fire2:#ff7a18;
+  --fire3:#ffc24b;
+  --bg0:#0b0403;
+  --text:#ffe9dd;
+  --muted:#c99a86;
+  --border:rgba(255,120,40,.25);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{
+  height:100%;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  margin:0;
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  background:var(--bg0);
+  color:var(--text);
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+
+/* ==================== 视频背景 ==================== */
+.bg-video-wrap{
+  position:fixed;inset:0;z-index:0;
+  overflow:hidden;pointer-events:none;
+  /* 视频未加载/加载失败时的兜底渐变（火红氛围） */
+  background:
+    radial-gradient(circle at 15% 105%, rgba(255,60,0,.45), transparent 52%),
+    radial-gradient(circle at 85% 95%, rgba(255,140,0,.28), transparent 48%),
+    radial-gradient(circle at 50% -10%, rgba(150,25,0,.5), transparent 60%),
+    #0b0403;
+}
+.bg-video-wrap video{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 1.15s ease-in-out;   /* 叠化转场时长，与 JS 中 FADE 保持一致 */
+  will-change:opacity;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  pointer-events:none;
+}
+.bg-video-wrap video.active{opacity:1;}
+
+/* 视频之上的色调层：保留火红氛围 + 保证前景文字可读 */
+.bg-overlay{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 105%, rgba(255,60,0,.30), transparent 55%),
+    radial-gradient(circle at 85% 95%, rgba(255,140,0,.18), transparent 50%),
+    linear-gradient(rgba(11,4,3,.66), rgba(11,4,3,.80));
+  animation:overlayPulse 9s ease-in-out infinite alternate;
+}
+@keyframes overlayPulse{
+  from{opacity:.94;}
+  to{opacity:1;}
+}
+
+/* ===== 火星粒子 ===== */
+.embers{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none;}
+.embers i{
+  position:absolute;bottom:-24px;border-radius:50%;
+  background:radial-gradient(circle,#ffe08a 0%,#ff8a1e 45%,rgba(255,60,0,0) 72%);
+  animation:floatUp linear infinite;
+  opacity:0;
+}
+@keyframes floatUp{
+  0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}
+  12%{opacity:.85;}
+  80%{opacity:.5;}
+  100%{transform:translateY(-112vh) translateX(var(--dx,30px)) scale(.25);opacity:0;}
+}
+
+/* ===== 布局 ===== */
+.app{
+  position:relative;z-index:3;
+  height:100vh;height:100dvh;
+  max-width:880px;margin:0 auto;
+  display:flex;flex-direction:column;
+  padding:0 16px;
+}
+
+/* ===== 顶栏 ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 0 12px;
+  border-bottom:1px solid rgba(255,120,40,.16);
+  flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:13px;min-width:0;}
+.avatar-ring{
+  position:relative;flex:0 0 auto;
+  width:48px;height:48px;border-radius:50%;padding:2px;
+  background:conic-gradient(from 0deg,#ff2d00,#ffc24b,#ff5a14,#ff2d00);
+  animation:spin 6s linear infinite;
+  box-shadow:0 0 20px rgba(255,80,10,.6), 0 0 46px rgba(255,60,0,.28);
+}
+.avatar-ring img{
+  width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;
+  background:#1a0704;animation:spin 6s linear infinite reverse;
+}
+.avatar-ring.fallback::after{
+  content:"🐉";position:absolute;inset:3px;border-radius:50%;
+  display:grid;place-items:center;font-size:24px;background:#200806;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.brand-text{min-width:0;}
+.brand-text h1{
+  margin:0;font-size:17px;font-weight:800;letter-spacing:.5px;
+  background:linear-gradient(90deg,#ffb347,#ff5a14,#ff2d00,#ffb347);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 4.5s linear infinite;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+@keyframes shine{to{background-position:200% center;}}
+.status{
+  margin:3px 0 0;font-size:12px;color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dot{
+  width:7px;height:7px;border-radius:50%;background:#4ade80;
+  box-shadow:0 0 8px #4ade80;animation:blink 1.8s ease-in-out infinite;
+  flex:0 0 auto;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+.icon-btn{
+  flex:0 0 auto;width:40px;height:40px;border-radius:12px;cursor:pointer;
+  background:rgba(255,90,20,.12);border:1px solid var(--border);
+  color:#ffb88e;font-size:17px;transition:.22s;
+  display:grid;place-items:center;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.icon-btn:hover{background:rgba(255,90,20,.28);color:#fff;transform:rotate(35deg);}
+
+/* ===== 滚动公告 ===== */
+.ticker{
+  overflow:hidden;white-space:nowrap;flex:0 0 auto;
+  border-bottom:1px solid rgba(255,120,40,.12);
+  background:linear-gradient(90deg,rgba(255,60,0,.14),rgba(255,120,0,.05),rgba(255,60,0,.14));
+}
+.ticker-track{display:flex;width:max-content;animation:marquee 34s linear infinite;}
+.ticker-track span{padding:7px 0;font-size:12.5px;color:#e79b78;letter-spacing:.3px;}
+.ticker-track span::after{content:"　";}
+@keyframes marquee{to{transform:translateX(-50%);}}
+
+/* ===== 聊天区 ===== */
+.chat-scroll{
+  flex:1 1 auto;min-height:0;
+  overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:20px 4px 6px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,90,20,.5) transparent;
+  scroll-behavior:smooth;
+}
+.chat-scroll::-webkit-scrollbar{width:7px;}
+.chat-scroll::-webkit-scrollbar-track{background:transparent;}
+.chat-scroll::-webkit-scrollbar-thumb{
+  background:linear-gradient(#ff5a14,#ff9a2e);border-radius:8px;
+}
+.msg{display:flex;gap:10px;margin-bottom:16px;align-items:flex-start;animation:msgIn .38s cubic-bezier(.2,.8,.3,1);}
+@keyframes msgIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.msg.user{flex-direction:row-reverse;}
+.mini-avatar{
+  position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+  padding:1.5px;background:linear-gradient(135deg,#ff2d00,#ffb347);
+  box-shadow:0 0 12px rgba(255,70,10,.5);
+}
+.mini-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;background:#1a0704;}
+.mini-avatar.fallback::after{
+  content:"🐉";position:absolute;inset:2px;border-radius:50%;
+  display:grid;place-items:center;font-size:16px;background:#200806;
+}
+.bubble{
+  max-width:78%;padding:12px 16px;border-radius:16px;
+  line-height:1.75;font-size:14.5px;white-space:pre-wrap;
+  word-break:break-word;overflow-wrap:anywhere;
+}
+.msg.bot .bubble{
+  background:linear-gradient(150deg,rgba(28,8,4,.82),rgba(40,12,4,.68));
+  border:1px solid var(--border);border-top-left-radius:5px;
+  box-shadow:0 4px 20px rgba(0,0,0,.35), 0 0 24px rgba(255,50,0,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.msg.user .bubble{
+  background:linear-gradient(135deg,#ff7a18,#ff2d00);
+  color:#1d0400;font-weight:600;border-top-right-radius:5px;
+  box-shadow:0 6px 22px rgba(255,60,0,.35);
+}
+.bubble strong{color:#ffcf7a;font-weight:800;}
+.msg.user .bubble strong{color:#2b0600;}
+
+/* 打字中 */
+.typing{display:flex;gap:5px;align-items:center;padding:15px 18px;}
+.typing i{
+  width:7px;height:7px;border-radius:50%;background:#ff7a18;
+  animation:bounce 1.2s infinite ease-in-out;
+}
+.typing i:nth-child(2){animation-delay:.18s;}
+.typing i:nth-child(3){animation-delay:.36s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.45;}30%{transform:translateY(-6px);opacity:1;}}
+
+/* ===== 快捷问题 ===== */
+.quick{
+  display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;
+  scrollbar-width:none;flex:0 0 auto;
+  -webkit-overflow-scrolling:touch;
+}
+.quick::-webkit-scrollbar{display:none;}
+.chip{
+  flex:0 0 auto;padding:8px 15px;border-radius:999px;font-size:13px;
+  cursor:pointer;white-space:nowrap;transition:.2s;
+  background:rgba(28,10,6,.62);border:1px solid rgba(255,120,40,.32);
+  color:#ffcbb0;font-family:inherit;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.chip:hover{
+  background:rgba(255,90,20,.30);border-color:#ff7a18;color:#fff;
+  transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,60,0,.3);
+}
+.chip:active{transform:translateY(0) scale(.97);}
+
+/* ===== 输入栏 ===== */
+.input-bar{display:flex;gap:10px;padding:4px 0 18px;flex:0 0 auto;}
+.input-bar input{
+  flex:1;min-width:0;padding:14px 18px;border-radius:14px;font-size:15px;
+  background:rgba(28,10,6,.66);
+  border:1px solid rgba(255,120,40,.34);
+  color:var(--text);outline:none;transition:.25s;
+  font-family:inherit;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.input-bar input::placeholder{color:#a86a55;}
+.input-bar input:focus{
+  border-color:#ff7a18;background:rgba(255,90,20,.18);
+  box-shadow:0 0 0 3px rgba(255,90,20,.14), 0 0 26px rgba(255,60,0,.22);
+}
+#sendBtn{
+  flex:0 0 auto;padding:0 26px;border:none;border-radius:14px;cursor:pointer;
+  font-size:15px;font-weight:800;color:#210500;letter-spacing:1px;
+  background:linear-gradient(135deg,#ffc24b,#ff7a18 50%,#ff2d00);
+  box-shadow:0 6px 22px rgba(255,60,0,.4);
+  transition:transform .15s, box-shadow .25s, filter .2s;
+  font-family:inherit;
+}
+#sendBtn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,60,0,.55);filter:brightness(1.06);}
+#sendBtn:active{transform:translateY(0) scale(.96);}
+#sendBtn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+
+/* ===== 设置弹窗 ===== */
+.modal-mask{
+  position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:20px;
+  background:rgba(6,2,1,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  overflow-y:auto;
+}
+.modal-mask.open{display:grid;}
+.modal{
+  width:100%;max-width:430px;border-radius:20px;padding:24px;
+  background:linear-gradient(160deg,#210906,#110302);
+  border:1px solid rgba(255,120,40,.3);
+  box-shadow:0 30px 90px rgba(0,0,0,.75), 0 0 70px rgba(255,60,0,.16);
+  animation:msgIn .3s ease;
+}
+.modal h2{margin:0 0 8px;font-size:18px;color:#ffd0a8;}
+.modal .hint{font-size:12.5px;color:var(--muted);margin:0 0 6px;line-height:1.7;}
+.modal label{display:block;font-size:12.5px;color:#ffb08a;margin:15px 0 6px;font-weight:600;}
+.modal input{
+  width:100%;padding:11px 14px;border-radius:11px;font-size:14px;
+  background:rgba(255,90,20,.07);border:1px solid rgba(255,120,40,.25);
+  color:var(--text);outline:none;transition:.22s;
+  font-family:inherit;
+}
+.modal input:focus{border-color:#ff7a18;box-shadow:0 0 0 3px rgba(255,90,20,.13);}
+.modal-actions{display:flex;gap:10px;margin-top:22px;}
+.btn{
+  flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;
+  font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;
+}
+.btn.primary{background:linear-gradient(135deg,#ff8a1e,#ff2d00);color:#210500;}
+.btn.ghost{background:rgba(255,255,255,.06);color:#ffcbb0;border:1px solid rgba(255,120,40,.25);}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.warn{font-size:11.5px;color:#b9744f;margin:16px 0 0;line-height:1.65;}
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed;left:50%;bottom:36px;z-index:90;
+  transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  padding:11px 20px;border-radius:12px;font-size:13px;color:#fff;
+  background:linear-gradient(135deg,rgba(255,90,20,.96),rgba(190,35,0,.96));
+  box-shadow:0 10px 34px rgba(255,60,0,.45);
+  transition:.35s cubic-bezier(.2,.8,.3,1);max-width:86vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ==================== 📱 手机端适配（不影响电脑端） ==================== */
+@media (max-width: 640px){
+  .app{
+    padding-left:max(12px, env(safe-area-inset-left));
+    padding-right:max(12px, env(safe-area-inset-right));
+  }
+  .topbar{padding:10px 0 9px;gap:9px;}
+  .avatar-ring{width:44px;height:44px;}
+  .brand-text h1{font-size:15.5px;}
+  .status{font-size:11px;}
+  .icon-btn{width:38px;height:38px;font-size:16px;border-radius:11px;}
+
+  .ticker-track span{font-size:11.5px;padding:6px 0;}
+
+  .chat-scroll{padding:14px 2px 6px;}
+  .msg{gap:8px;margin-bottom:13px;}
+  .mini-avatar{width:30px;height:30px;}
+  .bubble{
+    max-width:86%;padding:11px 14px;font-size:14px;line-height:1.72;
+    border-radius:14px;
+  }
+
+  .quick{gap:7px;padding:2px 0 8px;}
+  .chip{padding:7px 13px;font-size:12.5px;}
+
+  .input-bar{
+    gap:8px;
+    padding:4px 0 calc(12px + env(safe-area-inset-bottom));
+  }
+  /* iOS 上 16px 以下会触发自动放大，这里锁 16px */
+  .input-bar input{padding:13px 15px;font-size:16px;border-radius:13px;}
+  #sendBtn{padding:0 20px;font-size:14px;border-radius:13px;letter-spacing:0;}
+
+  .modal{padding:20px;border-radius:18px;}
+  .modal input{font-size:16px;}
+  .toast{bottom:calc(24px + env(safe-area-inset-bottom));font-size:12.5px;}
+}
+
+/* 小屏手机 */
+@media (max-width: 380px){
+  .brand-text h1{font-size:14px;}
+  .avatar-ring{width:40px;height:40px;}
+  .bubble{max-width:90%;font-size:13.5px;padding:10px 13px;}
+  #sendBtn{padding:0 15px;font-size:13.5px;}
+}
+
+/* 横屏矮屏手机：压缩头部，给聊天区更多空间 */
+@media (max-height: 560px) and (orientation: landscape){
+  .topbar{padding:7px 0 7px;}
+  .avatar-ring{width:36px;height:36px;}
+  .brand-text h1{font-size:14px;}
+  .status{display:none;}
+  .ticker{display:none;}
+  .chat-scroll{padding-top:10px;}
+  .quick{padding-bottom:6px;}
+  .input-bar{padding-bottom:10px;}
+}
+
+/* 触摸设备：去掉 hover 位移，避免点击后卡住 */
+@media (hover: none){
+  .chip:hover{transform:none;box-shadow:none;}
+  .icon-btn:hover{transform:none;}
+  #sendBtn:hover{transform:none;filter:none;}
+}
+
+/* 系统开启"减弱动态效果"时，去掉叠化过渡，直接切换 */
+@media (prefers-reduced-motion: reduce){
+  .bg-video-wrap video{transition:opacity .35s linear;}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 视频背景（双 video 叠化转场） ==================== -->
+<div class="bg-video-wrap" id="bgVideoWrap">
+  <video id="bgVideoA" class="active" src="background.mp4"
+         muted playsinline preload="auto" disablepictureinpicture
+         aria-hidden="true"></video>
+  <video id="bgVideoB" src="background.mp4"
+         muted playsinline preload="auto" disablepictureinpicture
+         aria-hidden="true"></video>
+</div>
+<div class="bg-overlay"></div>
+<div class="embers" id="embers"></div>
+
+<div class="app">
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="avatar-ring">
+        <img src="ai.webp" alt="龙宝"
+             onerror="this.parentElement.classList.add('fallback');this.remove();">
+      </div>
+      <div class="brand-text">
+        <h1>龙之谷物语智能客服</h1>
+        <p class="status"><span class="dot"></span><span id="statusText">龙宝 · 在线</span></p>
+      </div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" title="API 设置">⚙</button>
+  </header>
+
+  <!-- 滚动公告 -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>🔥 一服 sp.longvalley.cn:32922</span>
+      <span>🏙️ 二服（模组·模拟大都市）a6.minekuai.com:10300</span>
+      <span>💬 加群 1059442560 反馈 bug 或建议</span>
+      <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
+      <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
+      <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
+      <span>🔥 一服 sp.longvalley.cn:32922</span>
+      <span>🏙️ 二服（模组·模拟大都市）a6.minekuai.com:10300</span>
+      <span>💬 加群 1059442560 反馈 bug 或建议</span>
+      <span>🌿 玩法：生存 · 探索 · 建筑 · 养老</span>
+      <span>🕹️ 一服指令：/tpa 玩家互传 · /balance 查余额</span>
+      <span>⚠️ 禁止拆家 / 骂人 / 恶意 PVP / 恶意组队</span>
+    </div>
+  </div>
+
+  <!-- 聊天区 -->
+  <main class="chat-scroll" id="chatScroll">
+    <div id="messages"></div>
+  </main>
+
+  <!-- 快捷问题 -->
+  <div class="quick" id="quick"></div>
+
+  <!-- 输入栏 -->
+  <div class="input-bar">
+    <input id="userInput" type="text" autocomplete="off"
+           placeholder="问问龙宝吧～（地址 / 玩法 / 指令…）">
+    <button id="sendBtn">发送</button>
+  </div>
+</div>
+
+<!-- 设置弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <h2>🔥 龙宝设置</h2>
+    <p class="hint">不填 API Key 时，龙宝会自动使用内置知识库回答服务器相关问题。填写后优先调用 DeepSeek 智能回答。</p>
+
+    <label>DeepSeek API Key</label>
+    <input id="apiKeyInput" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" autocomplete="off">
+
+    <label>API 地址（Base URL）</label>
+    <input id="baseUrlInput" type="text" placeholder="https://api.deepseek.com">
+
+    <label>模型名称</label>
+    <input id="modelInput" type="text" placeholder="deepseek-chat">
+
+    <div class="modal-actions">
+      <button class="btn ghost" id="clearKeyBtn">清空</button>
+      <button class="btn primary" id="saveBtn">保存</button>
+    </div>
+
+    <p class="warn">⚠️ 浏览器直连 API 会暴露 Key，请仅在个人设备使用。若接口调用失败，龙宝会自动切换为本地知识库回答。</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==================== 视频背景：结束前叠化转场，无缝重播 ==================== */
+(function initVideoBackground(){
+  const wrap = document.getElementById('bgVideoWrap');
+  const vA = document.getElementById('bgVideoA');
+  const vB = document.getElementById('bgVideoB');
+  if(!wrap || !vA || !vB) return;
+
+  const FADE = 1150;   // 叠化时长(ms)，需与 CSS transition 中的 1.15s 保持一致
+  const LEAD = 1.15;   // 提前多少秒开始转场（略大于叠化时长，保证无缝）
+
+  let active = vA;
+  let idle   = vB;
+  let switching = false;
+  let failed = false;
+
+  function safePlay(v){
+    if(!v || failed) return;
+    const p = v.play();
+    if(p && typeof p.catch === 'function'){
+      p.catch(() => { /* 自动播放被拦截，等待用户交互后再恢复 */ });
+    }
+  }
+
+  function switchTo(){
+    if(switching || failed) return;
+    switching = true;
+
+    const next = idle;
+    const prev = active;
+
+    // 让下一个视频从头开始播放
+    try{ next.currentTime = 0; }catch(e){}
+    safePlay(next);
+
+    // 叠化：新视频淡入，旧视频淡出（CSS transition 生效）
+    next.classList.add('active');
+    prev.classList.remove('active');
+
+    // 交换角色
+    active = next;
+    idle   = prev;
+
+    // 叠化结束后暂停旧视频，释放性能
+    setTimeout(() => {
+      try{
+        prev.pause();
+        prev.currentTime = 0;
+      }catch(e){}
+      switching = false;
+    }, FADE + 120);
+  }
+
+  function watch(v){
+    // 用 timeupdate 提前触发转场，避免黑帧
+    v.addEventListener('timeupdate', () => {
+      if(failed || switching || v !== active) return;
+      const d = v.duration;
+      if(!d || !isFinite(d) || d <= LEAD * 2) return;
+      if(v.currentTime >= d - LEAD) switchTo();
+    });
+
+    // ended 作为兜底（比如视频很短或 timeupdate 未触发）
+    v.addEventListener('ended', () => {
+      if(failed || switching || v !== active) return;
+      switchTo();
+    });
+
+    // 加载失败：隐藏视频，显示 CSS 渐变兜底背景
+    v.addEventListener('error', () => {
+      if(failed) return;
+      failed = true;
+      vA.style.display = 'none';
+      vB.style.display = 'none';
+      console.warn('[龙宝] 背景视频加载失败，已切换为渐变背景');
+    });
+  }
+
+  watch(vA);
+  watch(vB);
+
+  // 启动第一个视频
+  vA.currentTime = 0;
+  safePlay(vA);
+
+  // 移动端自动播放常被拦截：首次交互时恢复播放
+  function resumeOnInteraction(){
+    if(!failed && active.paused){
+      safePlay(active);
+    }
+    document.removeEventListener('touchstart', resumeOnInteraction);
+    document.removeEventListener('click', resumeOnInteraction);
+    document.removeEventListener('keydown', resumeOnInteraction);
+  }
+  document.addEventListener('touchstart', resumeOnInteraction, {passive:true});
+  document.addEventListener('click', resumeOnInteraction);
+  document.addEventListener('keydown', resumeOnInteraction);
+
+  // 页面回到前台时恢复播放（切后台浏览器会暂停视频）
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && !failed && active.paused){
+      safePlay(active);
+    }
+  });
+
+  // 兜底：万一视频卡住不动，定时尝试恢复
+  setInterval(() => {
+    if(failed || switching) return;
+    if(active.paused && !active.ended){
+      safePlay(active);
+    }
+  }, 3000);
+})();
+
+/* ==================== 存储 Key ==================== */
+const KEY_STORE   = 'longbao_ds_key';
+const BASE_STORE  = 'longbao_ds_base';
+const MODEL_STORE = 'longbao_ds_model';
+const DEFAULT_BASE  = 'https://api.deepseek.com';
+const DEFAULT_MODEL = 'deepseek-chat';
+
+/* ==================== 知识库（喂给 DeepSeek） ==================== */
+const KNOWLEDGE = `
+【服务器名称】龙之谷物语
+【服务器地址】
+- 一服：sp.longvalley.cn:32922
+- 二服：a6.minekuai.com:10300（模组（模拟大都市）服）
+【交流群】加群 1059442560 反馈 bug 或建议
+【玩法】以生存、探索、建筑、养老为主
+【服务器规则】不允许任何形式的拆家、骂人、恶意 PVP 和组队等行为
+【一服可用指令】
+- /tpa [玩家名称] —— 玩家互传
+- /balance —— 查看剩余余额
+- 剩余功能可前往服务器菜单使用
+- 如果内容不足，欢迎各位进群补充
+`;
+
+const SYSTEM_PROMPT = `你是「龙之谷物语」Minecraft 服务器的智能客服，名字叫「龙宝」，形象是一只热情的小火龙。
+说话风格：亲切、热情、简洁，适度使用 🔥🐉🌿 等 emoji，回答不要太长（一般 2~6 行）。
+你必须严格依据下面的知识库回答，绝对不要编造服务器地址、群号或规则。
+不要在回答里自己添加"喵~"，系统会统一在句尾补上，你只需要正常写内容即可。
+
+===== 知识库 =====
+${KNOWLEDGE}
+==================
+
+要求：
+1. 用户问服务器地址时，必须完整给出一服和二服的地址。
+2. 用户问 bug / 建议 / 反馈时，告诉对方加群 1059442560。
+3. 用户问玩法时，回答以生存、探索、建筑、养老为主。
+4. 用户问规则时，说明不允许拆家、骂人、恶意 PVP 和组队。
+5. 用户问指令 / 命令 / 菜单时，列出：/tpa [玩家名称]（玩家互传）、/balance（查看剩余余额）、剩余功能可前往服务器菜单使用，并说明"如果内容不足，欢迎各位进群补充"。
+6. 知识库中没有的内容，礼貌说明不清楚，并建议加群 1059442560 咨询管理。
+7. 全程保持「龙宝」的人设，不要提及自己是 AI 模型。`;
+
+/* ==================== 本地关键词规则 ==================== */
+const RULES = [
+  /* 指令类放最前，避免被"服务器"等宽泛关键词抢先命中 */
+  {
+    keys: ['指令','命令','tpa','balance','余额','菜单','传送','互传','快捷键'],
+    reply: '🕹️ 一服可用指令：\n· **/tpa [玩家名称]** —— 玩家互传\n· **/balance** —— 查看剩余余额\n· 剩余功能可前往**服务器菜单**使用\n· 如果内容不足，欢迎各位**进群补充**～\n\n💬 加群 **1059442560** 反馈 bug 或建议'
+  },
+  {
+    keys: ['bug','反馈','建议','加群','群号','进群','扣群','q群','联系','管理','举报','投诉','意见','补充'],
+    reply: '🐉 遇到 bug 或者有建议，欢迎加群 **1059442560** 反馈！\n管理员看到会第一时间处理的～'
+  },
+  {
+    keys: ['模组','mod','模拟大都市','二服','2服','第二个服'],
+    reply: '🏙️ 模组服（模拟大都市）地址：**a6.minekuai.com:10300**\n记得先安装对应模组再进服哦～\n\n🔥 一服（原版生存）地址：**sp.longvalley.cn:32922**'
+  },
+  {
+    keys: ['地址','ip','端口','进服','连接','怎么进','如何进','进入','联机','加入','在哪玩','网址'],
+    reply: '🔥 龙之谷物语服务器地址：\n· 一服：**sp.longvalley.cn:32922**\n· 二服：**a6.minekuai.com:10300**（模组（模拟大都市）服）\n\n进不去的话可以加群 **1059442560** 找管理帮忙～'
+  },
+  {
+    keys: ['规则','拆家','骂人','pvp','组队','禁止','违规','封号','惩罚','能不能打','打架'],
+    reply: '⚠️ 服务器**不允许**任何形式的以下行为：\n· 拆家\n· 骂人\n· 恶意 PVP\n· 恶意组队\n\n一起维护友好的氛围，违规会被处理哦～'
+  },
+  {
+    keys: ['玩法','模式','内容','生存','探索','建筑','养老','做什么','有什么玩','肝'],
+    reply: '🌿 我们的玩法以 **生存、探索、建筑、养老** 为主～\n想肝就肝，想躺就躺，总有一款适合你！'
+  },
+  {
+    keys: ['你好','您好','hi','hello','在吗','嗨','哈喽','你是谁','介绍下自己'],
+    reply: '🐉🔥 你好呀！我是**龙宝**，龙之谷物语的智能客服～\n可以问我：服务器地址、玩法、模组服、服务器指令、服务器规则，或者加群反馈问题！'
+  },
+  {
+    keys: ['帮助','能做什么','会什么','怎么用','使用说明'],
+    reply: '我可以帮你解答：\n🔥 服务器地址 / 进服方式\n🌿 玩法介绍\n🏙️ 模组服信息\n🕹️ 一服可用指令\n📜 服务器规则\n💬 加群反馈 bug 或建议\n\n直接问我就好啦！'
+  },
+  {
+    keys: ['服务器','开服','什么时候开','几个服'],
+    reply: '🔥 龙之谷物语目前有两个服：\n· 一服：**sp.longvalley.cn:32922**（原版生存）\n· 二服：**a6.minekuai.com:10300**（模组（模拟大都市）服）\n\n玩法以生存、探索、建筑、养老为主～\n有问题可以加群 **1059442560** 反馈！'
+  }
+];
+
+const FALLBACK =
+  '🐉 这个问题龙宝暂时答不上来呢～\n你可以换个说法问我：**服务器地址 / 玩法 / 模组服 / 一服指令 / 服务器规则**。\n或者加群 **1059442560** 直接问管理哦！';
+
+function localReply(text){
+  const t = text.toLowerCase();
+  for(const rule of RULES){
+    if(rule.keys.some(k => t.includes(k.toLowerCase()))) return rule.reply;
+  }
+  return FALLBACK;
+}
+
+/* ==================== 喵~ 句尾处理 ==================== */
+const PUNCT = '。！？!?；;…';
+
+/**
+ * 给一段文本的每一句话末尾加上"喵~"
+ * - 空行保留
+ * - 以冒号/逗号结尾的引导行不加（如 "一服可用指令："）
+ * - 已有"喵~"结尾的句子不重复添加
+ * - 中文标点放在"喵~"之后，符合中文语感
+ */
+function miaoLine(line){
+  const t = line.replace(/\s+$/,'');
+  if(!t) return line;
+  if(/[：:,，、]$/.test(t)) return t;   // 引导语，不加
+
+  const parts = [];
+  let buf = '';
+  for(const ch of t){
+    if(PUNCT.includes(ch)){
+      parts.push({ text: buf, punct: ch });
+      buf = '';
+    }else{
+      buf += ch;
+    }
+  }
+  if(buf) parts.push({ text: buf, punct: '' });
+
+  return parts.map(p => {
+    const core = p.text;
+    if(!core.trim()) return p.punct;          // 只有标点
+    if(/喵~$/.test(core)) return core + p.punct;
+    return core + '喵~' + p.punct;
+  }).join('');
+}
+
+function addMiao(text){
+  if(!text) return text;
+  return String(text).split('\n').map(miaoLine).join('\n');
+}
+
+/* ==================== DOM ==================== */
+const messagesEl = document.getElementById('messages');
+const chatScroll = document.getElementById('chatScroll');
+const inputEl    = document.getElementById('userInput');
+const sendBtn    = document.getElementById('sendBtn');
+const quickEl    = document.getElementById('quick');
+const modalMask  = document.getElementById('modalMask');
+const toastEl    = document.getElementById('toast');
+const statusText = document.getElementById('statusText');
+
+/* ==================== 工具函数 ==================== */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function format(s){
+  return escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+function scrollToBottom(){
+  requestAnimationFrame(() => { chatScroll.scrollTop = chatScroll.scrollHeight; });
+}
+let toastTimer;
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+}
+
+/* ==================== 消息渲染 ==================== */
+function addMessage(role, text){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+
+  const avatarHtml = role === 'bot'
+    ? `<div class="mini-avatar">
+         <img src="ai.webp" alt=""
+              onerror="this.parentElement.classList.add('fallback');this.remove();">
+       </div>`
+    : '';
+
+  const content = role === 'bot' ? addMiao(text) : text;
+
+  wrap.innerHTML = avatarHtml + `<div class="bubble">${format(content)}</div>`;
+  messagesEl.appendChild(wrap);
+  scrollToBottom();
+  return wrap;
+}
+
+function showTyping(){
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = `
+    <div class="mini-avatar">
+      <img src="ai.webp" alt=""
+           onerror="this.parentElement.classList.add('fallback');this.remove();">
+    </div>
+    <div class="bubble typing"><i></i><i></i><i></i></div>`;
+  messagesEl.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+/* ==================== DeepSeek 调用 ==================== */
+function getKey(){ return (localStorage.getItem(KEY_STORE) || '').trim(); }
+
+async function askDeepSeek(history){
+  const key = getKey();
+  if(!key) return null;
+
+  const base  = (localStorage.getItem(BASE_STORE) || DEFAULT_BASE).trim().replace(/\/+$/, '');
+  const model = (localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+
+  const res = await fetch(base + '/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role:'system', content: SYSTEM_PROMPT }, ...history],
+      temperature: 0.65,
+      max_tokens: 700,
+      stream: false
+    })
+  });
+
+  if(!res.ok){
+    const txt = await res.text().catch(() => '');
+    throw new Error('HTTP ' + res.status + ' ' + txt.slice(0, 160));
+  }
+  const data = await res.json();
+  const content = data?.choices?.[0]?.message?.content;
+  return content ? content.trim() : null;
+}
+
+/* ==================== 对话主流程 ==================== */
+let history = [];
+let busy = false;
+
+async function handleSend(raw){
+  const text = (raw || '').trim();
+  if(!text || busy) return;
+
+  busy = true;
+  sendBtn.disabled = true;
+
+  addMessage('user', text);
+  history.push({ role:'user', content: text });
+  if(history.length > 16) history = history.slice(-16);
+
+  const typing = showTyping();
+  await sleep(320);
+
+  let reply = null;
+  if(getKey()){
+    try{
+      reply = await askDeepSeek(history);
+    }catch(err){
+      console.warn('[龙宝] DeepSeek 调用失败：', err);
+      toast('DeepSeek 接口调用失败，已切换为本地知识库回答');
+    }
+  }
+
+  if(!reply){
+    await sleep(380);
+    reply = localReply(text);
+  }
+
+  typing.remove();
+  addMessage('bot', reply);      // 展示时自动补"喵~"
+  history.push({ role:'assistant', content: reply });  // 历史存原文，避免重复
+  if(history.length > 16) history = history.slice(-16);
+
+  busy = false;
+  sendBtn.disabled = false;
+  if(window.matchMedia('(min-width: 641px)').matches) inputEl.focus();
+}
+
+/* ==================== 事件绑定 ==================== */
+sendBtn.addEventListener('click', () => {
+  const v = inputEl.value;
+  inputEl.value = '';
+  handleSend(v);
+});
+
+inputEl.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey && !e.isComposing){
+    e.preventDefault();
+    const v = inputEl.value;
+    inputEl.value = '';
+    handleSend(v);
+  }
+});
+
+/* 快捷问题 */
+const QUICK_LIST = [
+  '服务器地址是什么？',
+  '一服有什么可用指令？',
+  '怎么进模组服？',
+  '服务器玩法有哪些？',
+  '服务器规则是什么？',
+  '我要反馈 bug',
+  '群号是多少？'
+];
+QUICK_LIST.forEach(q => {
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.textContent = q;
+  chip.addEventListener('click', () => handleSend(q));
+  quickEl.appendChild(chip);
+});
+
+/* ==================== 设置弹窗 ==================== */
+const apiKeyInput  = document.getElementById('apiKeyInput');
+const baseUrlInput = document.getElementById('baseUrlInput');
+const modelInput   = document.getElementById('modelInput');
+
+function refreshStatus(){
+  statusText.textContent = getKey() ? '龙宝 · DeepSeek 已连接' : '龙宝 · 在线（本地知识库）';
+}
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  apiKeyInput.value  = localStorage.getItem(KEY_STORE) || '';
+  baseUrlInput.value = localStorage.getItem(BASE_STORE) || DEFAULT_BASE;
+  modelInput.value   = localStorage.getItem(MODEL_STORE) || DEFAULT_MODEL;
+  modalMask.classList.add('open');
+});
+
+modalMask.addEventListener('click', e => {
+  if(e.target === modalMask) modalMask.classList.remove('open');
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const k = apiKeyInput.value.trim();
+  const b = baseUrlInput.value.trim() || DEFAULT_BASE;
+  const m = modelInput.value.trim() || DEFAULT_MODEL;
+
+  if(k){
+    localStorage.setItem(KEY_STORE, k);
+    localStorage.setItem(BASE_STORE, b);
+    localStorage.setItem(MODEL_STORE, m);
+    toast('✅ 已保存，龙宝已接入 DeepSeek');
+  }else{
+    localStorage.removeItem(KEY_STORE);
+    localStorage.setItem(BASE_STORE, b);
+    localStorage.setItem(MODEL_STORE, m);
+    toast('已清空 API Key，使用本地知识库回答');
+  }
+  refreshStatus();
+  modalMask.classList.remove('open');
+});
+
+document.getElementById('clearKeyBtn').addEventListener('click', () => {
+  apiKeyInput.value = '';
+  localStorage.removeItem(KEY_STORE);
+  refreshStatus();
+  toast('已清空 API Key');
+});
+
+/* ==================== 火星粒子 ==================== */
+(function makeEmbers(){
+  const box = document.getElementById('embers');
+  const N = window.innerWidth < 600 ? 16 : 28;
+  for(let i = 0; i < N; i++){
+    const e = document.createElement('i');
+    const size = 3 + Math.random() * 6;
+    e.style.width  = size + 'px';
+    e.style.height = size + 'px';
+    e.style.left   = Math.random() * 100 + '%';
+    e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+    e.style.animationDuration = (9 + Math.random() * 12) + 's';
+    e.style.animationDelay = (Math.random() * 14) + 's';
+    box.appendChild(e);
+  }
+})();
+
+/* ==================== 初始化 ==================== */
+(function init(){
+  refreshStatus();
+
+  // 欢迎语（同样会自动带上"喵~"）
+  setTimeout(() => {
+    addMessage('bot',
+      '🐉🔥 你好呀，我是**龙宝**，龙之谷物语的智能客服！\n\n' +
+      '可以问我：\n· 🔥 服务器地址 / 怎么进服\n· 🕹️ 一服可用指令\n· 🌿 玩法介绍\n· 🏙️ 模组服信息\n· 📜 服务器规则\n· 💬 加群反馈 bug 或建议'
+    );
+  }, 420);
+
+  // 仅在桌面端自动聚焦，避免手机键盘自动弹出遮挡界面
+  if(window.matchMedia('(min-width: 641px)').matches){
+    setTimeout(() => inputEl.focus(), 600);
+  }
+})();
+</script>
+</body>
+</html>
